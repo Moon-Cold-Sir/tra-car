@@ -32,7 +32,7 @@
 #include "board.h"
 
 int32_t PWMA,PWMB;
-float speedA = 35.0,speedB = 35.0;
+float speedA = 40.0,speedB = 40.0;
 u8 Flag_Stop = 1;
 int quaTurn_Tim = -1;
 
@@ -82,6 +82,8 @@ int main(void)
 		OLED_ShowNum(77,3,sensordata[4],2,8);
 		OLED_ShowNum(90,3,sensordata[5],2,8);
 		OLED_ShowNum(103,3,sensordata[6],2,8);
+		OLED_ShowNum(25,4,tem2,2,8);
+		OLED_ShowNum(38,4,tem4,2,8);
 		//OLED_DisplayAngle();
     }
 }
@@ -93,9 +95,10 @@ void TIMER_0_INST_IRQHandler(void)
     {
         if(DL_TIMER_IIDX_ZERO)
         {
-			actuall_error = sensordata[0]*(-25) + sensordata[1]*(-12) +
+			
+			actuall_error = sensordata[0]*(-20) + sensordata[1]*(-10) +
                 sensordata[2]*(-5) + sensordata[4]*(5) + 
-                sensordata[5]*(12) + sensordata[6]*(25);
+                sensordata[5]*(10) + sensordata[6]*(20);
 
 			Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
 
@@ -103,35 +106,31 @@ void TIMER_0_INST_IRQHandler(void)
 
 			if(sensordata[0]==1&&sensordata[1]==1&&sensordata[6]==0&&sensordata[5] == 0)
 			{
-				PWMA = Incremental_PI_Right(MotorA.Current_Encoder,60);// PID Control
-				PWMB = Incremental_PI_Left(MotorB.Current_Encoder,5);// PID Control
-				PWMA = limit_PWM(PWMA,-4000,4000);
-				PWMB = limit_PWM(PWMB,-4000,4000);
+				MotorA.Target_Encoder = 60;
+				MotorB.Target_Encoder = 5;
 				tem2 = 1;
-				quaTurn_Tim = 0;
 			}
 			else if(sensordata[5]==1&&sensordata[6]==1&&sensordata[1]==0&&sensordata[0]==0)
 			{
-				PWMA = Incremental_PI_Right(MotorA.Current_Encoder,5);// PID Control
-				PWMB = Incremental_PI_Left(MotorB.Current_Encoder,60);// PID Control
-				PWMA = limit_PWM(PWMA,-4000,4000);
-				PWMB = limit_PWM(PWMB,-4000,4000);
+				MotorA.Target_Encoder = 5;
+				MotorB.Target_Encoder = 60;
 				tem4 = 1;
-				quaTurn_Tim = 0;
 			}
 			else if(tem2 == 0&&tem4 == 0)//偏差没那么大时微调
 			{
-				PWMA = Incremental_PI_Right(MotorA.Current_Encoder,speedA-actuall_error);// PID Control
-				PWMB = Incremental_PI_Left(MotorB.Current_Encoder,speedB+actuall_error);// PID Control
-				PWMA = limit_PWM(PWMA,-4000,4000);
-				PWMB = limit_PWM(PWMB,-4000,4000);
+				MotorA.Target_Encoder = speedA-actuall_error;
+				MotorB.Target_Encoder = speedB+actuall_error;
 			}
 			else if((tem2 == 1 || tem4 == 1)&&(sensordata[3] == 1&&sensordata[6] == 0&&sensordata[0] == 0))
 			{
 				tem2 = 0;
 				tem4 = 0;
 			}
-			Set_PWM(PWMA, PWMB);// PWM Output Enable
+			PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+			PWMA = limit_PWM(PWMA,-4000,4000);
+			PWMB = limit_PWM(PWMB,-4000,4000);
+			Set_PWM(0, 0);// PWM Output Enable
 		}
     }
 }

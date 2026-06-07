@@ -30,7 +30,7 @@ int Sensor_Left,Sensor_Middle,Sensor_Right,Sensor;
 
 Encoder OriginalEncoder; 					//编码器原始数据   
 Motor_parameter MotorA,MotorB;				//左右电机相关变量
-float Velocity_KPb=25,Velocity_KIb=1.25,Velocity_KPa=25,Velocity_KIa=1.25;	//速度环pi,a/b reflect motorA/motorB
+float Velocity_KPb=28,Velocity_KIb=0.8,Velocity_KPa=28,Velocity_KIa=0.8;	//速度环pi,a/b reflect motorA/motorB
 
 float Move_X,Move_Z;
 
@@ -43,6 +43,7 @@ Output  : none
 入口参数: 无 
 返回  值：无
 **************************************************************************/	 	
+
 // void Get_Velocity_From_Encoder(int Encoder1,int Encoder2)
 // {
 // 	//Stores the encoder count of the previous control cycle
@@ -80,6 +81,7 @@ Output  : none
 //     //30: gearbox reduction ratio
 // }
 
+//Take four-point averaging for more stable speed readings.
 void Get_Velocity_From_Encoder(int Encoder1, int Encoder2)
 {
     static int LastEncoder1 = 0, LastEncoder2 = 0;
@@ -105,10 +107,11 @@ void Get_Velocity_From_Encoder(int Encoder1, int Encoder2)
         Sum_DeltaB += DeltaB_Buffer[i];
     }
     
-    // 注意：因为总和是4个周期的，所以计算公式中要除以4.0f
+    // 因为总和是4个周期的，所以计算公式中要除以4.0f
     float Encoder_A_pr = Sum_DeltaA / 4.0f;
     float Encoder_B_pr = Sum_DeltaB / 4.0f;
     
+	//编码器脉冲数转换为车轮速度，单位cm/s
     MotorA.Current_Encoder = Encoder_A_pr * Frequency * Perimeter * 100 / 1560.0f;
     MotorB.Current_Encoder = Encoder_B_pr * Frequency * Perimeter * 100 / 1560.0f;
 }

@@ -3,5 +3,6 @@
 #include "ti_msp_dl_config.h"
 #include "board.h"
 extern uint8_t sensordata[7];
+extern uint8_t All_White;
 void sensortrack(void);
 #endif

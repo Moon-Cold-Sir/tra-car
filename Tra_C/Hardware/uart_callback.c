@@ -2,6 +2,7 @@
 #include <string.h>
 #include "board.h"
 #include "uart_callback.h"
+#include <stdlib.h>
 //Bluetooth remote control associated flag bits
 //蓝牙遥控相关的标志位
 int Flag_Left, Flag_Right, Flag_Direction=0, Turn_Flag;
@@ -124,17 +125,17 @@ void bt_control(uint8_t recv)
         else if(Receive[1] != 0x23)    // '#'
         {
             /* Convert ASCII number to float */
-            for(j = i; j >= 4; j--)
-            {
-                Data += (Receive[j-1] - 48) * pow(10, i - j);
-            }
+            char num_str[20];
+            memcpy(num_str, &Receive[3], i - 4);
+            num_str[i - 4] = '\0';
+            Data = atof(num_str);
             switch(Receive[1])
             {
                 case 0x30:  Velocity_KPa=Data;break;
                 case 0x31:  Velocity_KIa=Data;break;
                 case 0x32:  MotorA.Target_Encoder=Data;break;//Velocity_Kp=Data;break;
                 case 0x33:  Velocity_KPb=Data;break;//Velocity_Ki=Data;break;
-                case 0x34:  Velocity_KPb=Data;break;//Turn_Kp=Data;break;
+                case 0x34:  Velocity_KIb=Data;break;//Turn_Kp=Data;break;
                 case 0x35:  MotorB.Target_Encoder=Data;break;//Turn_Kd=Data;break;
                 case 0x36:  break; //预留
                 case 0x37:  break; //预留

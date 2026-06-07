@@ -79,22 +79,24 @@ void APP_Show(void)
 {
     int Encoder_Left_Show;
     int Encoder_Right_Show;
-    int Target_Show;
+    int Target_ShowA;
+    int Target_ShowB;
     /* Convert m/s to mm/s */
     Encoder_Left_Show  = (int)(MotorA.Current_Encoder * 1000);
     Encoder_Right_Show = (int)(MotorB.Current_Encoder * 1000);
-    Target_Show        = (int)(MotorA.Target_Encoder * 1000);
+    Target_ShowA        = (int)(MotorA.Target_Encoder * 1000);
+    Target_ShowB        = (int)(MotorB.Target_Encoder * 1000);
     /* APP requests PID parameters */
     if(PID_Send == 1)
     {
-        printf("{C%d:%d:%d:%d:%d:%d:%d:%d:%d}$",(int)Velocity_KPa,(int)Velocity_KIa,
-            (int)Velocity_KPb,(int)Velocity_KIb,0,0,0,0,0);
+        printf("{C%.2f:%.2f:%.2f:%.2f:%d:%d:%d:%d:%d}$",Velocity_KPa,
+       Velocity_KIa,Velocity_KPb,Velocity_KIb,0,0,0,0,0);
         PID_Send = 0;
     }
     else
     {
         /* Send waveform data */
-        printf("{B%d:%d:%d}$",Encoder_Left_Show,Encoder_Right_Show,Target_Show);
+        printf("{B%d:%d:%d:%d}$",Encoder_Left_Show,Encoder_Right_Show,Target_ShowA,Target_ShowB);
     }
 }
 

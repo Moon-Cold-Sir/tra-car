@@ -1,7 +1,8 @@
 #include "HX_X17.h"
 #include "ti_msp_dl_config.h"
 uint8_t sensordata[7] = {0};
-
+uint8_t All_White = 0;
+//黑1白0
 void sensortrack(void)
 {
     sensordata[0] = (DL_GPIO_readPins(HX_X17_L3_PORT, HX_X17_L3_PIN) != 0) ? 1 : 0;
