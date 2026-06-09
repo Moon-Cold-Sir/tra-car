@@ -35,6 +35,7 @@ int32_t PWMA,PWMB;
 float speedA = 40.0,speedB = 40.0;
 u8 Flag_Stop = 1;
 int quaTurn_Tim = -1;
+uint8_t Key2_Num = 0;
 
 int tem2 = 0,tem4 = 0;
 int actuall_error = 0;
@@ -84,18 +85,50 @@ int main(void)
 		OLED_ShowNum(103,3,sensordata[6],2,8);
 		OLED_ShowNum(25,4,tem2,2,8);
 		OLED_ShowNum(38,4,tem4,2,8);
-		//OLED_DisplayAngle();
+		OLED_ShowNum(25,5,Get_Encoder_countA,8,8);
+		OLED_ShowNum(64,5,Get_Encoder_countB,8,8);
+		if(Key2_GetNum() == 1)
+		{
+			Key2_Num = 0;
+			DL_TimerG_startCounter(TIMER_0_INST);
+			
+			while(1)
+			{
+				OLED_ShowString(2,1,(uint8_t *)"EA:",8);
+				OLED_ShowNum(20,1,MotorA.Current_Encoder,5,8);
+				OLED_ShowString(2,2,(uint8_t *)"EB:",8);
+				OLED_ShowNum(20,2,MotorB.Current_Encoder,5,8);
+				OLED_ShowString(2,3,(uint8_t *)"sen:",8);
+				OLED_ShowNum(25,3,sensordata[0],2,8);
+				OLED_ShowNum(38,3,sensordata[1],2,8);
+				OLED_ShowNum(51,3,sensordata[2],2,8);
+				OLED_ShowNum(64,3,sensordata[3],2,8);
+				OLED_ShowNum(77,3,sensordata[4],2,8);
+				OLED_ShowNum(90,3,sensordata[5],2,8);
+				OLED_ShowNum(103,3,sensordata[6],2,8);
+				OLED_ShowNum(25,4,tem2,2,8);
+				OLED_ShowNum(38,4,tem4,2,8);
+				OLED_ShowNum(5,6,Get_Encoder_countA,7,8);
+				OLED_ShowNum(64,6,Get_Encoder_countB,7,8);
+				if(Key2_GetNum() == 1)
+				{
+					DL_TimerG_stopCounter(TIMER_0_INST);
+					Stop_Car();
+					while(1);
+				}
+			}
+		}
     }
 }
 
-// 5ms timer interrupt
+// 10ms timer interrupt
 void TIMER_0_INST_IRQHandler(void)
 {
     if(DL_TimerA_getPendingInterrupt(TIMER_0_INST))
     {
         if(DL_TIMER_IIDX_ZERO)
         {
-			
+			sensortrack();
 			actuall_error = sensordata[0]*(-20) + sensordata[1]*(-10) +
                 sensordata[2]*(-5) + sensordata[4]*(5) + 
                 sensordata[5]*(10) + sensordata[6]*(20);
@@ -106,14 +139,14 @@ void TIMER_0_INST_IRQHandler(void)
 
 			if(sensordata[0]==1&&sensordata[1]==1&&sensordata[6]==0&&sensordata[5] == 0)
 			{
-				MotorA.Target_Encoder = 60;
+				MotorA.Target_Encoder = 40;
 				MotorB.Target_Encoder = 5;
 				tem2 = 1;
 			}
 			else if(sensordata[5]==1&&sensordata[6]==1&&sensordata[1]==0&&sensordata[0]==0)
 			{
 				MotorA.Target_Encoder = 5;
-				MotorB.Target_Encoder = 60;
+				MotorB.Target_Encoder = 40;
 				tem4 = 1;
 			}
 			else if(tem2 == 0&&tem4 == 0)//偏差没那么大时微调
@@ -130,7 +163,7 @@ void TIMER_0_INST_IRQHandler(void)
 			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
 			PWMA = limit_PWM(PWMA,-4000,4000);
 			PWMB = limit_PWM(PWMB,-4000,4000);
-			Set_PWM(0, 0);// PWM Output Enable
+			Set_PWM(PWMA, PWMB);// PWM Output Enable
 		}
     }
 }

@@ -3,8 +3,8 @@
 #include "ti_msp_dl_config.h"
 #include "board.h"
 
-int Velocity_A(int TargetVelocity, int CurrentVelocity);
-int Velocity_B(int TargetVelocity, int CurrentVelocity);
 void Set_PWM(int pwmA,int pwmB);
 int limit_PWM(int value,int low,int high);
+void Motor_Init(void);
+void Stop_Car(void);
 #endif

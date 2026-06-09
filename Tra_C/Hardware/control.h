@@ -46,17 +46,9 @@ typedef struct
 extern Motor_parameter MotorA,MotorB;				//左右电机相关变量
 extern float Voltage_Count,Voltage_All;
 extern float Velocity_KPa,Velocity_KIa,Velocity_KPb,Velocity_KIb;	
-void TIM6_Init(void); 
 void Get_Velocity_From_Encoder(int Encoder1,int Encoder2);
-float target_limit_float(float insert,float low,float high);
-int target_limit_int(int insert,int low,int high);
 void Get_Target_Encoder(float Vx,float Vz);
 int Incremental_PI_Left (float Encoder,float Target);
 int Incremental_PI_Right (float Encoder,float Target);
-void Get_Motor_PWM(void);
-void Set_Pwm(int motor_a,int motor_b);
-int Turn_Off(void);
 int myabs(int a);
-void Get_RC(void);
-void Key(void);
 #endif

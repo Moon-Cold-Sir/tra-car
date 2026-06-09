@@ -85,14 +85,14 @@ void GROUP1_IRQHandler(void)
     if((gpio_interrup1 & ENCODERA_E1A_PIN) == ENCODERA_E1A_PIN)
     {
         // A相发生跳变时：如果 A 和 B 电平不一致，为正转；一致为反转
-        if(MA_A_State != MA_B_State) Get_Encoder_countA--;
-        else Get_Encoder_countA++;
+        if(MA_A_State != MA_B_State) Get_Encoder_countA++;
+        else Get_Encoder_countA--;
     }
     else if((gpio_interrup1 & ENCODERA_E1B_PIN) == ENCODERA_E1B_PIN)
     {
         // B相发生跳变时：如果 A 和 B 电平一致，为正转；不一致为反转
-        if(MA_A_State == MA_B_State) Get_Encoder_countA--;
-        else Get_Encoder_countA++;
+        if(MA_A_State == MA_B_State) Get_Encoder_countA++;
+        else Get_Encoder_countA--;
     }
 
     // --- Encoder B 同理处理 ---

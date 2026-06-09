@@ -199,42 +199,4 @@ int Incremental_PI_Right (float Encoder,float Target)
 	 Last_bias=Bias;	                   					//保存上一次偏差 
 	 return Pwm;                         					//增量输出
 }
-/**************************************************************************
-Function: Processes the command sent by APP through usart 2
-Input   : none
-Output  : none
-函数功能：对APP通过串口2发送过来的命令进行处理
-入口参数：无
-返回  值：无
-**************************************************************************/
-void Get_RC(void)
-{
-	u8 Flag_Move=1;
-	//差速车
-	 switch(Flag_Direction) //Handle direction control commands //处理方向控制命令
-	 { 
-			case 1:      Move_X=+RC_Velocity;  	 Move_Z=0;         break;
-			case 2:      Move_X=+RC_Velocity;  	 Move_Z=-PI/2;   	 break;
-			case 3:      Move_X=0;      				 Move_Z=-PI/2;   	 break;	 
-			case 4:      Move_X=-RC_Velocity;  	 Move_Z=-PI/2;     break;		 
-			case 5:      Move_X=-RC_Velocity;  	 Move_Z=0;         break;	 
-			case 6:      Move_X=-RC_Velocity;  	 Move_Z=+PI/2;     break;	 
-			case 7:      Move_X=0;     	 			 	 Move_Z=+PI/2;     break;
-			case 8:      Move_X=+RC_Velocity; 	 Move_Z=+PI/2;     break; 
-			default:     Move_X=0;               Move_Z=0;         break;
-	 }
-	 if     (Flag_Left ==1)  Move_Z= PI/2; //left rotation  //左自转 
-	 else if(Flag_Right==1)  Move_Z=-PI/2; //right rotation //右自转	
-
-	 // if(Move_X<0) Move_Z=-Move_Z; //The differential control principle series requires this treatment //差速控制原理系列需要此处理
-		Move_Z=Move_Z*RC_Velocity/200;
-	//Unit conversion, mm/s -> m/s
-  //单位转换，mm/s -> m/s	
-	Move_X=Move_X/1000;       Move_Y=Move_Y/1000;         Move_Z=Move_Z;
-	
-	//Control target value is obtained and kinematics analysis is performed
-	//得到控制目标值，进行运动学分析
-	Get_Target_Encoder(Move_X,Move_Z);
-}
-
 
