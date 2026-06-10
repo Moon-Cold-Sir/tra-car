@@ -36,9 +36,8 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH.909856147" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH" valueType="includePath">
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
                                     <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE_PATH}"/>
-                                    <listOptionValue value="${PROJECT_ROOT}/BSP/MPU6050"/>
-                                    <listOptionValue value="${PROJECT_ROOT}/BSP/MPU6050/DMP"/>
                                     <listOptionValue value="${PROJECT_ROOT}/CONTROL"/>
+                                    <listOptionValue value="${PROJECT_ROOT}/Hardware/MPU6050"/>
                                     <listOptionValue value="${PROJECT_ROOT}/HARDWARE"/>
                                     <listOptionValue value="${PROJECT_ROOT}/BTControl"/>
                                     <listOptionValue value="${PROJECT_ROOT}"/>
@@ -50,6 +49,8 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE.951591536" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE" valueType="definedSymbols">
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_SYMBOLS}"/>
                                     <listOptionValue value="${SYSCONFIG_TOOL_SYMBOLS}"/>
+                                    <listOptionValue value="MPU6050"/>
+                                    <listOptionValue value="MOTION_DRIVER_TARGET_MSPM0"/>
                                 </option>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL.784678672" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL.0" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.CMD_FILE.500900958" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.CMD_FILE" valueType="stringList">
@@ -109,9 +110,8 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH.2017258097" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH" valueType="includePath">
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
                                     <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE_PATH}"/>
-                                    <listOptionValue value="${PROJECT_ROOT}/BSP/MPU6050"/>
-                                    <listOptionValue value="${PROJECT_ROOT}/BSP/MPU6050/DMP"/>
                                     <listOptionValue value="${PROJECT_ROOT}/CONTROL"/>
+                                    <listOptionValue value="${PROJECT_ROOT}/Hardware/MPU6050"/>
                                     <listOptionValue value="${PROJECT_ROOT}/Hardware"/>
                                     <listOptionValue value="${PROJECT_ROOT}"/>
                                     <listOptionValue value="${PROJECT_ROOT}/${ConfigName}"/>

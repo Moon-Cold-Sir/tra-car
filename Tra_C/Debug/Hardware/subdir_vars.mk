@@ -10,10 +10,15 @@ C_SRCS += \
 ../Hardware/board.c \
 ../Hardware/control.c \
 ../Hardware/encoder.c \
+../Hardware/interrupt.c \
+../Hardware/inv_mpu.c \
+../Hardware/inv_mpu_dmp_motion_driver.c \
 ../Hardware/kalman.c \
 ../Hardware/key.c \
 ../Hardware/led.c \
 ../Hardware/motor.c \
+../Hardware/mpu6050.c \
+../Hardware/mspm0_i2c.c \
 ../Hardware/oled_hardware_i2c.c \
 ../Hardware/show.c \
 ../Hardware/uart_callback.c 
@@ -23,10 +28,15 @@ C_DEPS += \
 ./Hardware/board.d \
 ./Hardware/control.d \
 ./Hardware/encoder.d \
+./Hardware/interrupt.d \
+./Hardware/inv_mpu.d \
+./Hardware/inv_mpu_dmp_motion_driver.d \
 ./Hardware/kalman.d \
 ./Hardware/key.d \
 ./Hardware/led.d \
 ./Hardware/motor.d \
+./Hardware/mpu6050.d \
+./Hardware/mspm0_i2c.d \
 ./Hardware/oled_hardware_i2c.d \
 ./Hardware/show.d \
 ./Hardware/uart_callback.d 
@@ -36,10 +46,15 @@ OBJS += \
 ./Hardware/board.o \
 ./Hardware/control.o \
 ./Hardware/encoder.o \
+./Hardware/interrupt.o \
+./Hardware/inv_mpu.o \
+./Hardware/inv_mpu_dmp_motion_driver.o \
 ./Hardware/kalman.o \
 ./Hardware/key.o \
 ./Hardware/led.o \
 ./Hardware/motor.o \
+./Hardware/mpu6050.o \
+./Hardware/mspm0_i2c.o \
 ./Hardware/oled_hardware_i2c.o \
 ./Hardware/show.o \
 ./Hardware/uart_callback.o 
@@ -49,10 +64,15 @@ OBJS__QUOTED += \
 "Hardware\board.o" \
 "Hardware\control.o" \
 "Hardware\encoder.o" \
+"Hardware\interrupt.o" \
+"Hardware\inv_mpu.o" \
+"Hardware\inv_mpu_dmp_motion_driver.o" \
 "Hardware\kalman.o" \
 "Hardware\key.o" \
 "Hardware\led.o" \
 "Hardware\motor.o" \
+"Hardware\mpu6050.o" \
+"Hardware\mspm0_i2c.o" \
 "Hardware\oled_hardware_i2c.o" \
 "Hardware\show.o" \
 "Hardware\uart_callback.o" 
@@ -62,10 +82,15 @@ C_DEPS__QUOTED += \
 "Hardware\board.d" \
 "Hardware\control.d" \
 "Hardware\encoder.d" \
+"Hardware\interrupt.d" \
+"Hardware\inv_mpu.d" \
+"Hardware\inv_mpu_dmp_motion_driver.d" \
 "Hardware\kalman.d" \
 "Hardware\key.d" \
 "Hardware\led.d" \
 "Hardware\motor.d" \
+"Hardware\mpu6050.d" \
+"Hardware\mspm0_i2c.d" \
 "Hardware\oled_hardware_i2c.d" \
 "Hardware\show.d" \
 "Hardware\uart_callback.d" 
@@ -75,10 +100,15 @@ C_SRCS__QUOTED += \
 "../Hardware/board.c" \
 "../Hardware/control.c" \
 "../Hardware/encoder.c" \
+"../Hardware/interrupt.c" \
+"../Hardware/inv_mpu.c" \
+"../Hardware/inv_mpu_dmp_motion_driver.c" \
 "../Hardware/kalman.c" \
 "../Hardware/key.c" \
 "../Hardware/led.c" \
 "../Hardware/motor.c" \
+"../Hardware/mpu6050.c" \
+"../Hardware/mspm0_i2c.c" \
 "../Hardware/oled_hardware_i2c.c" \
 "../Hardware/show.c" \
 "../Hardware/uart_callback.c" 

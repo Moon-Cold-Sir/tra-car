@@ -10,12 +10,15 @@
 #include "oled_hardware_i2c.h"
 //#include "wit.h"
 #include "HX_X17.h"
-//#include "interrupt.h"
+#include "interrupt.h"
 #include "kalman.h"
 
 #include "control.h"
 #include "uart_callback.h"
 #include "show.h"
+
+#include "mpu6050.h"
+
 #define ABS(a)      (a>0 ? a:(-a))
 typedef int32_t  s32;
 typedef int16_t s16;
@@ -89,4 +92,5 @@ void delay_us(uint32_t us);
 void delay_1us(unsigned long __us);
 void delay_1ms(unsigned long ms);
 int mspm0_get_clock_ms(unsigned long *count);
+void mspm0_delay_ms(unsigned long ms);
 #endif  /* #ifndef _BOARD_H_ */

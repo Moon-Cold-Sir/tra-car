@@ -1,6 +1,6 @@
 #include "encoder.h"
 #include "ti_msp_dl_config.h"
-#include "led.h"
+#include "control.h"
 uint32_t gpio_interrup1,gpio_interrup2;
 int Get_Encoder_countA,Get_Encoder_countB;
 /*******************************************************
@@ -112,5 +112,61 @@ void GROUP1_IRQHandler(void)
 	// 清除中断标志位
     DL_GPIO_clearInterruptStatus(ENCODERA_PORT, ENCODERA_E1A_PIN | ENCODERA_E1B_PIN);
 	DL_GPIO_clearInterruptStatus(ENCODERB_PORT, ENCODERB_E2A_PIN | ENCODERB_E2B_PIN);
+
+        
+    switch (DL_Interrupt_getPendingGroup(DL_INTERRUPT_GROUP_1))
+    {
+    #if defined GPIO_MULTIPLE_GPIOA_INT_IIDX
+            case GPIO_MULTIPLE_GPIOA_INT_IIDX:
+
+                switch (DL_GPIO_getPendingInterrupt(GPIOA))
+                {
+    #if (defined GPIO_MPU6050_PORT) && (GPIO_MPU6050_PORT == GPIOA)
+                    case GPIO_MPU6050_PIN_INT_IIDX:
+                        Read_Quad();
+                        break;
+    #endif
+
+                    default:
+                        break;
+                }
+
+                break;
+    #endif
+
+    #if defined GPIO_MULTIPLE_GPIOB_INT_IIDX
+            case GPIO_MULTIPLE_GPIOB_INT_IIDX:
+
+                switch (DL_GPIO_getPendingInterrupt(GPIOB))
+                {
+    #if (defined GPIO_MPU6050_PORT) && (GPIO_MPU6050_PORT == GPIOB)
+                    case GPIO_MPU6050_PIN_MPU6050_INT_IIDX:
+                        Read_Quad();
+                        break;
+    #endif
+
+                    default:
+                        break;
+                }
+
+                break;
+    #endif
+
+    #if defined GPIO_MPU6050_INT_IIDX
+            case GPIO_MPU6050_INT_IIDX:
+                Read_Quad();
+                break;
+    #endif
+
+            default:
+                break;
+        }
 }
 
+//Calculate the difference between the two encoders
+int CalculateEncoderDiff(void)
+{
+    int encoder_diff = 0;
+    encoder_diff = myabs(Get_Encoder_countA-Get_Encoder_countB);
+    return encoder_diff;
+}

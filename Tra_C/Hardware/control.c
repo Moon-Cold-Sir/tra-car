@@ -21,8 +21,6 @@ All rights reserved
 
 u8 Car_Mode=Diff_Car;
 u8 PID_Send;            //延时和调参相关变量
-float RC_Velocity=200,RC_Turn_Velocity,Move_X,Move_Y,Move_Z,PS2_ON_Flag;               //遥控控制的速度
-float Velocity_Left,Velocity_Right; //车轮速度(mm/s)
 u16 test_num,show_cnt;
 
 u8 CCD_count,ELE_count;
@@ -32,9 +30,6 @@ Encoder OriginalEncoder; 					//编码器原始数据
 Motor_parameter MotorA,MotorB;				//左右电机相关变量
 float Velocity_KPb=28,Velocity_KIb=0.8,Velocity_KPa=28,Velocity_KIa=0.8;	//速度环pi,a/b reflect motorA/motorB
 
-float Move_X,Move_Z;
-
-
 /**************************************************************************
 Function: Get_Velocity_From_Encoder
 Input   : none
@@ -42,45 +37,7 @@ Output  : none
 函数功能：读取编码器和转换成速度
 入口参数: 无 
 返回  值：无
-**************************************************************************/	 	
-
-// void Get_Velocity_From_Encoder(int Encoder1,int Encoder2)
-// {
-// 	//Stores the encoder count of the previous control cycle
-//     //保存上一控制周期的编码器计数值
-//     static int LastEncoder1 = 0;
-//     static int LastEncoder2 = 0;
-//     //Encoder count increment during current control cycle
-//     //当前控制周期内的编码器增量
-//     int DeltaEncoder1;
-//     int DeltaEncoder2;
-//     //Calculate encoder count increment
-//     //计算编码器增量
-//     DeltaEncoder1 = Encoder1 - LastEncoder1;
-//     DeltaEncoder2 = Encoder2 - LastEncoder2;
-//     //Update the previous encoder count
-//     //更新上一时刻编码器计数值
-//     LastEncoder1 = Encoder1;
-//     LastEncoder2 = Encoder2;
-//     //Retrieves the incremental encoder data
-//     //获取编码器增量数据
-//     float Encoder_A_pr,Encoder_B_pr;
-//     OriginalEncoder.A = DeltaEncoder1;
-//     OriginalEncoder.B = DeltaEncoder2;
-//     Encoder_A_pr = OriginalEncoder.A;
-//     Encoder_B_pr = OriginalEncoder.B;
-//     //Convert encoder pulses to wheel velocity (cm/s)
-//     //编码器脉冲数转换为车轮速度，单位cm/s
-//     MotorA.Current_Encoder = Encoder_A_pr * Frequency * Perimeter * 100 / 780.0f;
-//     MotorB.Current_Encoder = Encoder_B_pr * Frequency * Perimeter * 100 / 780.0f;
-
-//     //780 = 2 * 1 * 13 * 30
-//     //2: quadrature encoder channels
-//     //1: rising-edge counting
-//     //13: encoder pulses per motor revolution
-//     //30: gearbox reduction ratio
-// }
-
+**************************************************************************/	
 //Take four-point averaging for more stable speed readings.
 void Get_Velocity_From_Encoder(int Encoder1, int Encoder2)
 {

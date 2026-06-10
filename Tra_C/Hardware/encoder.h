@@ -4,5 +4,5 @@
 #include "board.h"
 
 extern int Get_Encoder_countA,Get_Encoder_countB;
-
+int CalculateEncoderDiff(void);
 #endif

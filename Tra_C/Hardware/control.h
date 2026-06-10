@@ -33,6 +33,7 @@ typedef struct
 	float Motor_Pwm;     		//电机PWM数值，控制电机实时速度
 	float Target_Encoder;  		//电机目标编码器速度值，控制电机目标速度
 	float Velocity; 	 		//电机速度值
+	float Last_TargetEncoder;	//Last motor target encoder speed
 }Motor_parameter;
 
 //编码器结构体

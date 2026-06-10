@@ -78,8 +78,9 @@ Hardware/oled_hardware_i2c.o: ../Hardware/oled_hardware_i2c.c \
  C:/ti/mspm0_sdk_2_05_01_00/source/ti/driverlib/m0p/dl_systick.h \
  ../Hardware/oledfont.h ../Hardware/board.h ../Hardware/led.h \
  ../Hardware/key.h ../Hardware/motor.h ../Hardware/encoder.h \
- ../Hardware/HX_X17.h ../Hardware/kalman.h ../Hardware/control.h \
- ../Hardware/uart_callback.h ../Hardware/show.h
+ ../Hardware/HX_X17.h ../Hardware/interrupt.h ../Hardware/kalman.h \
+ ../Hardware/control.h ../Hardware/uart_callback.h ../Hardware/show.h \
+ ../Hardware/mpu6050.h
 ../Hardware/oled_hardware_i2c.h:
 ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_05_01_00/source/ti/devices/msp/msp.h:
@@ -162,7 +163,9 @@ C:/ti/mspm0_sdk_2_05_01_00/source/ti/driverlib/m0p/dl_systick.h:
 ../Hardware/motor.h:
 ../Hardware/encoder.h:
 ../Hardware/HX_X17.h:
+../Hardware/interrupt.h:
 ../Hardware/kalman.h:
 ../Hardware/control.h:
 ../Hardware/uart_callback.h:
 ../Hardware/show.h:
+../Hardware/mpu6050.h:

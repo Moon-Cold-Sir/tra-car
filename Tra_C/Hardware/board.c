@@ -127,3 +127,8 @@ int mspm0_get_clock_ms(unsigned long *count)
     count[0] = tick_ms;
     return 0;
 }
+
+void mspm0_delay_ms(unsigned long ms)
+{
+    delay_ms(ms);
+}

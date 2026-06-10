@@ -81,10 +81,12 @@ empty.o: ../empty.c D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/board.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/encoder.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/oled_hardware_i2c.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/HX_X17.h \
+ D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/interrupt.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/kalman.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/control.h \
  D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/uart_callback.h \
- D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/show.h
+ D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/show.h \
+ D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/mpu6050.h
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/board.h:
 ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_05_01_00/source/ti/devices/msp/msp.h:
@@ -166,7 +168,9 @@ D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/motor.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/encoder.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/oled_hardware_i2c.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/HX_X17.h:
+D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/interrupt.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/kalman.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/control.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/uart_callback.h:
 D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/show.h:
+D:/mspm0/NUEDC/TraCar_6050HQ/Tra_C/HARDWARE/mpu6050.h:

@@ -153,18 +153,19 @@ extern "C" {
 #define GPIO_OLED_IOMUX_SCL                                       (IOMUX_PINCM2)
 #define GPIO_OLED_IOMUX_SCL_FUNC                        IOMUX_PINCM2_PF_I2C0_SCL
 
-/* Defines for I2C_0 */
-#define I2C_0_INST                                                          I2C1
-#define I2C_0_INST_IRQHandler                                    I2C1_IRQHandler
-#define I2C_0_INST_INT_IRQN                                        I2C1_INT_IRQn
-#define GPIO_I2C_0_SDA_PORT                                                GPIOA
-#define GPIO_I2C_0_SDA_PIN                                        DL_GPIO_PIN_16
-#define GPIO_I2C_0_IOMUX_SDA                                     (IOMUX_PINCM38)
-#define GPIO_I2C_0_IOMUX_SDA_FUNC                      IOMUX_PINCM38_PF_I2C1_SDA
-#define GPIO_I2C_0_SCL_PORT                                                GPIOA
-#define GPIO_I2C_0_SCL_PIN                                        DL_GPIO_PIN_15
-#define GPIO_I2C_0_IOMUX_SCL                                     (IOMUX_PINCM37)
-#define GPIO_I2C_0_IOMUX_SCL_FUNC                      IOMUX_PINCM37_PF_I2C1_SCL
+/* Defines for I2C_MPU6050 */
+#define I2C_MPU6050_INST                                                    I2C1
+#define I2C_MPU6050_INST_IRQHandler                              I2C1_IRQHandler
+#define I2C_MPU6050_INST_INT_IRQN                                  I2C1_INT_IRQn
+#define I2C_MPU6050_BUS_SPEED_HZ                                          400000
+#define GPIO_I2C_MPU6050_SDA_PORT                                          GPIOA
+#define GPIO_I2C_MPU6050_SDA_PIN                                  DL_GPIO_PIN_16
+#define GPIO_I2C_MPU6050_IOMUX_SDA                               (IOMUX_PINCM38)
+#define GPIO_I2C_MPU6050_IOMUX_SDA_FUNC                IOMUX_PINCM38_PF_I2C1_SDA
+#define GPIO_I2C_MPU6050_SCL_PORT                                          GPIOA
+#define GPIO_I2C_MPU6050_SCL_PIN                                  DL_GPIO_PIN_15
+#define GPIO_I2C_MPU6050_IOMUX_SCL                               (IOMUX_PINCM37)
+#define GPIO_I2C_MPU6050_IOMUX_SCL_FUNC                IOMUX_PINCM37_PF_I2C1_SCL
 
 
 /* Defines for UART_0 */
@@ -215,6 +216,17 @@ extern "C" {
 /* Defines for led: GPIOA.27 with pinCMx 60 on package pin 31 */
 #define LED_led_PIN                                             (DL_GPIO_PIN_27)
 #define LED_led_IOMUX                                            (IOMUX_PINCM60)
+/* Port definition for Pin Group GPIO_MPU6050 */
+#define GPIO_MPU6050_PORT                                                (GPIOA)
+
+/* Defines for PIN_INT: GPIOA.17 with pinCMx 39 on package pin 10 */
+// groups represented: ["ENCODERA","GPIO_MPU6050"]
+// pins affected: ["E1A","E1B","PIN_INT"]
+#define GPIO_MULTIPLE_GPIOA_INT_IRQN                            (GPIOA_INT_IRQn)
+#define GPIO_MULTIPLE_GPIOA_INT_IIDX            (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
+#define GPIO_MPU6050_PIN_INT_IIDX                           (DL_GPIO_IIDX_DIO17)
+#define GPIO_MPU6050_PIN_INT_PIN                                (DL_GPIO_PIN_17)
+#define GPIO_MPU6050_PIN_INT_IOMUX                               (IOMUX_PINCM39)
 /* Defines for key1: GPIOA.18 with pinCMx 40 on package pin 11 */
 #define KEY_key1_PORT                                                    (GPIOA)
 #define KEY_key1_PIN                                            (DL_GPIO_PIN_18)
@@ -253,9 +265,6 @@ extern "C" {
 #define ENCODERA_PORT                                                    (GPIOA)
 
 /* Defines for E1A: GPIOA.25 with pinCMx 55 on package pin 26 */
-// pins affected by this interrupt request:["E1A","E1B"]
-#define ENCODERA_INT_IRQN                                       (GPIOA_INT_IRQn)
-#define ENCODERA_INT_IIDX                       (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
 #define ENCODERA_E1A_IIDX                                   (DL_GPIO_IIDX_DIO25)
 #define ENCODERA_E1A_PIN                                        (DL_GPIO_PIN_25)
 #define ENCODERA_E1A_IOMUX                                       (IOMUX_PINCM55)
@@ -320,7 +329,7 @@ void SYSCFG_DL_CAPTURE_ULTRASONIC_init(void);
 void SYSCFG_DL_TIMER_0_init(void);
 void SYSCFG_DL_TIMER_1_init(void);
 void SYSCFG_DL_OLED_init(void);
-void SYSCFG_DL_I2C_0_init(void);
+void SYSCFG_DL_I2C_MPU6050_init(void);
 void SYSCFG_DL_UART_0_init(void);
 void SYSCFG_DL_UART_BT_init(void);
 void SYSCFG_DL_DMA_init(void);

@@ -59,6 +59,7 @@ void Set_PWM(int pwmA,int pwmB)
     }
 }
 
+// Output limit (-7999 ~ 7999), frequency 10khz
 void Stop_Car(void)
 {
   Set_PWM(0,0);

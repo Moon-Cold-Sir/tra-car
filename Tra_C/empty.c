@@ -32,28 +32,31 @@
 #include "board.h"
 
 int32_t PWMA,PWMB;
-float speedA = 40.0,speedB = 40.0;
+float speedA = 50.0,speedB = 50.0;
 u8 Flag_Stop = 1;
 int quaTurn_Tim = -1;
-uint8_t Key2_Num = 0;
 
 int tem2 = 0,tem4 = 0;
-int actuall_error = 0;
+float actuall_error = 0;
 
 //蓝牙通信配置了串口1(bound:9600)+DMA，用于防止编码器中断+定时中断过多导致接收的蓝牙数据丢失
 int main(void)
 {
 	int i=0;
     SYSCFG_DL_init();
+
+	MPU6050_Init();
+	Interrupt_Init();
+
 	//Start the timer.
 	//If you check the "start timer" option in the configuration
 	//it will repeatedly loop without needing to be started.
 	DL_Timer_startCounter(PWM_0_INST);
 
-	NVIC_ClearPendingIRQ(ENCODERA_INT_IRQN);
+	NVIC_ClearPendingIRQ(GPIO_MULTIPLE_GPIOA_INT_IRQN);
     NVIC_ClearPendingIRQ(ENCODERB_INT_IRQN);
 	NVIC_ClearPendingIRQ(UART_BT_INST_INT_IRQN);
-	NVIC_EnableIRQ(ENCODERA_INT_IRQN);
+	NVIC_EnableIRQ(GPIO_MULTIPLE_GPIOA_INT_IRQN);
     NVIC_EnableIRQ(ENCODERB_INT_IRQN);
 	NVIC_EnableIRQ(UART_BT_INST_INT_IRQN);
 
@@ -63,7 +66,6 @@ int main(void)
 	NVIC_EnableIRQ(TIMER_1_INST_INT_IRQN);
 
 	BT_DAMConfig();
-
 	OLED_Init();
 	
     while (1) 
@@ -83,13 +85,8 @@ int main(void)
 		OLED_ShowNum(77,3,sensordata[4],2,8);
 		OLED_ShowNum(90,3,sensordata[5],2,8);
 		OLED_ShowNum(103,3,sensordata[6],2,8);
-		OLED_ShowNum(25,4,tem2,2,8);
-		OLED_ShowNum(38,4,tem4,2,8);
-		OLED_ShowNum(25,5,Get_Encoder_countA,8,8);
-		OLED_ShowNum(64,5,Get_Encoder_countB,8,8);
 		if(Key2_GetNum() == 1)
 		{
-			Key2_Num = 0;
 			DL_TimerG_startCounter(TIMER_0_INST);
 			
 			while(1)
@@ -106,10 +103,6 @@ int main(void)
 				OLED_ShowNum(77,3,sensordata[4],2,8);
 				OLED_ShowNum(90,3,sensordata[5],2,8);
 				OLED_ShowNum(103,3,sensordata[6],2,8);
-				OLED_ShowNum(25,4,tem2,2,8);
-				OLED_ShowNum(38,4,tem4,2,8);
-				OLED_ShowNum(5,6,Get_Encoder_countA,7,8);
-				OLED_ShowNum(64,6,Get_Encoder_countB,7,8);
 				if(Key2_GetNum() == 1)
 				{
 					DL_TimerG_stopCounter(TIMER_0_INST);
@@ -129,41 +122,21 @@ void TIMER_0_INST_IRQHandler(void)
         if(DL_TIMER_IIDX_ZERO)
         {
 			sensortrack();
-			actuall_error = sensordata[0]*(-20) + sensordata[1]*(-10) +
-                sensordata[2]*(-5) + sensordata[4]*(5) + 
-                sensordata[5]*(10) + sensordata[6]*(20);
-
+			actuall_error = LineTrackingError();
 			Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
-
-			// Output limit (-7999 ~ 7999), frequency 10khz
-
-			if(sensordata[0]==1&&sensordata[1]==1&&sensordata[6]==0&&sensordata[5] == 0)
+			if(CheckIsAllWhite())
 			{
-				MotorA.Target_Encoder = 40;
-				MotorB.Target_Encoder = 5;
-				tem2 = 1;
 			}
-			else if(sensordata[5]==1&&sensordata[6]==1&&sensordata[1]==0&&sensordata[0]==0)
-			{
-				MotorA.Target_Encoder = 5;
-				MotorB.Target_Encoder = 40;
-				tem4 = 1;
-			}
-			else if(tem2 == 0&&tem4 == 0)//偏差没那么大时微调
+			else
 			{
 				MotorA.Target_Encoder = speedA-actuall_error;
 				MotorB.Target_Encoder = speedB+actuall_error;
-			}
-			else if((tem2 == 1 || tem4 == 1)&&(sensordata[3] == 1&&sensordata[6] == 0&&sensordata[0] == 0))
-			{
-				tem2 = 0;
-				tem4 = 0;
 			}
 			PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
 			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
 			PWMA = limit_PWM(PWMA,-4000,4000);
 			PWMB = limit_PWM(PWMB,-4000,4000);
-			Set_PWM(PWMA, PWMB);// PWM Output Enable
+			Set_PWM(PWMA, PWMB);
 		}
     }
 }
