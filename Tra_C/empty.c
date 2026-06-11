@@ -32,12 +32,13 @@
 #include "board.h"
 
 int32_t PWMA,PWMB;
-float speedA = 50.0,speedB = 50.0;
+float speedA = 40.0,speedB = 40.0;
 u8 Flag_Stop = 1;
-int quaTurn_Tim = -1;
-
-int tem2 = 0,tem4 = 0;
+int QuaTurn_Tim = 0, Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
+uint8_t Flag_Allwhite = 0, Target_Cycles = 1, carmode = 1, Flag_Repeatqua = 0, Flag_Finishqua = 0;
 float actuall_error = 0;
+
+uint8_t oled_buffer[32];
 
 //蓝牙通信配置了串口1(bound:9600)+DMA，用于防止编码器中断+定时中断过多导致接收的蓝牙数据丢失
 int main(void)
@@ -75,16 +76,40 @@ int main(void)
 		sensortrack();
 		OLED_ShowString(2,1,(uint8_t *)"EA:",8);
 		OLED_ShowNum(20,1,MotorA.Current_Encoder,5,8);
-		OLED_ShowString(2,2,(uint8_t *)"EB:",8);
-		OLED_ShowNum(20,2,MotorB.Current_Encoder,5,8);
-		OLED_ShowString(2,3,(uint8_t *)"sen:",8);
-		OLED_ShowNum(25,3,sensordata[0],2,8);
-		OLED_ShowNum(38,3,sensordata[1],2,8);
-		OLED_ShowNum(51,3,sensordata[2],2,8);
-		OLED_ShowNum(64,3,sensordata[3],2,8);
-		OLED_ShowNum(77,3,sensordata[4],2,8);
-		OLED_ShowNum(90,3,sensordata[5],2,8);
-		OLED_ShowNum(103,3,sensordata[6],2,8);
+		OLED_ShowString(60,1,(uint8_t *)"EB:",8);
+		OLED_ShowNum(78,1,MotorB.Current_Encoder,5,8);
+		OLED_ShowString(2,2,(uint8_t *)"sen:",8);
+		OLED_ShowNum(25,2,sensordata[0],2,8);
+		OLED_ShowNum(38,2,sensordata[1],2,8);
+		OLED_ShowNum(51,2,sensordata[2],2,8);
+		OLED_ShowNum(64,2,sensordata[3],2,8);
+		OLED_ShowNum(77,2,sensordata[4],2,8);
+		OLED_ShowNum(90,2,sensordata[5],2,8);
+		OLED_ShowNum(103,2,sensordata[6],2,8);
+		OLED_ShowString(2,3,(uint8_t *)"cyc:",8);
+		OLED_ShowNum(25,3,Target_Cycles,2,8);
+		OLED_ShowString(60,3,(uint8_t *)"mode:",8);
+		OLED_ShowNum(90,3,carmode,2,8);
+		OLED_ShowString(2,4,(uint8_t *)"yaw:",8);
+		sprintf((char *)oled_buffer, "%-6.1f", yaw);
+        OLED_ShowString(5*5,4,oled_buffer,8);
+
+		if(Key3_GetNum() == 1)
+		{
+			Target_Cycles++;
+			if(Target_Cycles>5)
+			{
+				Target_Cycles = 1;
+			}
+		}
+		if(Key4_GetNum() == 1)
+		{
+			carmode++;
+			if(carmode>3)
+			{
+				carmode = 1;
+			}
+		}
 		if(Key2_GetNum() == 1)
 		{
 			DL_TimerG_startCounter(TIMER_0_INST);
@@ -92,18 +117,26 @@ int main(void)
 			while(1)
 			{
 				OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-				OLED_ShowNum(20,1,MotorA.Current_Encoder,5,8);
-				OLED_ShowString(2,2,(uint8_t *)"EB:",8);
-				OLED_ShowNum(20,2,MotorB.Current_Encoder,5,8);
-				OLED_ShowString(2,3,(uint8_t *)"sen:",8);
-				OLED_ShowNum(25,3,sensordata[0],2,8);
-				OLED_ShowNum(38,3,sensordata[1],2,8);
-				OLED_ShowNum(51,3,sensordata[2],2,8);
-				OLED_ShowNum(64,3,sensordata[3],2,8);
-				OLED_ShowNum(77,3,sensordata[4],2,8);
-				OLED_ShowNum(90,3,sensordata[5],2,8);
-				OLED_ShowNum(103,3,sensordata[6],2,8);
-				if(Key2_GetNum() == 1)
+				OLED_ShowNum(20,1,MotorA.Current_Encoder,3,8);
+				OLED_ShowString(60,1,(uint8_t *)"EB:",8);
+				OLED_ShowNum(78,1,MotorB.Current_Encoder,3,8);
+				OLED_ShowString(2,2,(uint8_t *)"sen:",8);
+				OLED_ShowNum(25,2,sensordata[0],2,8);
+				OLED_ShowNum(38,2,sensordata[1],2,8);
+				OLED_ShowNum(51,2,sensordata[2],2,8);
+				OLED_ShowNum(64,2,sensordata[3],2,8);
+				OLED_ShowNum(77,2,sensordata[4],2,8);
+				OLED_ShowNum(90,2,sensordata[5],2,8);
+				OLED_ShowNum(103,2,sensordata[6],2,8);
+				OLED_ShowString(2,3,(uint8_t *)"cyc:",8);
+				OLED_ShowNum(25,3,Target_Cycles,2,8);
+				OLED_ShowString(60,3,(uint8_t *)"mode:",8);
+				OLED_ShowNum(90,3,carmode,2,8);
+				OLED_ShowString(2,4,(uint8_t *)"yaw:",8);
+				sprintf((char *)oled_buffer, "%-6.1f", yaw);
+				OLED_ShowString(5*5,4,oled_buffer,8);
+				//此处如果要是想要停止的更加干脆，可以简单一点让QuaTurn_Tim/4==Target_Cycles-1&&QuaTurn_Tim%3==1时速度全部除以二
+				if(Key2_GetNum() == 1 || (QuaTurn_Tim/4==Target_Cycles))
 				{
 					DL_TimerG_stopCounter(TIMER_0_INST);
 					Stop_Car();
@@ -124,13 +157,43 @@ void TIMER_0_INST_IRQHandler(void)
 			sensortrack();
 			actuall_error = LineTrackingError();
 			Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+			if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
+			{
+				QuaTurn_Tim++;
+				Flag_Finishqua = 0;
+				Flag_Repeatqua = 1;
+			}
 			if(CheckIsAllWhite())
 			{
+				Turn_StartGEA = Get_Encoder_countA;
+				Turn_StartGEB = Get_Encoder_countB;
+				Flag_Allwhite = 1;
 			}
 			else
 			{
-				MotorA.Target_Encoder = speedA-actuall_error;
-				MotorB.Target_Encoder = speedB+actuall_error;
+				if(Flag_Allwhite)
+				{
+					Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
+					Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
+					if(myabs(Delta_GEA-Delta_GEB)>=200)
+					{
+						MotorA.Target_Encoder = speedA-actuall_error;
+						MotorB.Target_Encoder = speedB+actuall_error;
+						Flag_Allwhite = 0;
+						Flag_Finishqua = 1;// Turn complete = 1
+					}
+					else {}
+				}
+				else
+				{
+					MotorA.Target_Encoder = speedA-actuall_error;
+					MotorB.Target_Encoder = speedB+actuall_error;
+				}
+			}
+			if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
+			{
+				Flag_Repeatqua = 0;
+				Flag_Finishqua = 0;
 			}
 			PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
 			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control

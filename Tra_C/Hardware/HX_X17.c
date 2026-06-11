@@ -3,7 +3,7 @@
 
 #define SevenTrack 7
 
-int Err_weight[SevenTrack] = {-30, -15, -5, 0, 5, 15, 30};
+int Err_weight[SevenTrack] = {-30, -7, -3, 0, 3, 7, 30};
 
 uint8_t sensordata[SevenTrack] = {0};
 //黑1白0
@@ -39,7 +39,7 @@ float LineTrackingError(void)
 {
     int i;
     int sum_error = 0;
-    float actuall_error = 0.0;
+    float actuall_error = 0;
     for(i = 0; i<SevenTrack; i++)
     {
         actuall_error += Err_weight[i]*sensordata[i];
@@ -50,4 +50,12 @@ float LineTrackingError(void)
     //     actuall_error = (float)sum_error/black_num;
     // }
     return actuall_error;
+}
+
+//Right angle detect
+uint8_t TrackQua(void)
+{
+    if(myabs((int)LineTrackingError())>(Err_weight[6]+Err_weight[5]))
+    {return 1;}
+    else {return 0;}
 }

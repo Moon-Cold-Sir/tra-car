@@ -6,4 +6,5 @@ extern uint8_t sensordata[7];
 void sensortrack(void);
 uint8_t CheckIsAllWhite(void);
 float LineTrackingError(void);
+uint8_t TrackQua(void);
 #endif

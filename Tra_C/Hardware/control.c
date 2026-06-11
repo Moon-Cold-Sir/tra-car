@@ -28,7 +28,7 @@ int Sensor_Left,Sensor_Middle,Sensor_Right,Sensor;
 
 Encoder OriginalEncoder; 					//编码器原始数据   
 Motor_parameter MotorA,MotorB;				//左右电机相关变量
-float Velocity_KPb=28,Velocity_KIb=0.8,Velocity_KPa=28,Velocity_KIa=0.8;	//速度环pi,a/b reflect motorA/motorB
+float Velocity_KPb=40,Velocity_KIb=1.0,Velocity_KPa=40,Velocity_KIa=1.0;	//速度环pi,a/b reflect motorA/motorB
 
 /**************************************************************************
 Function: Get_Velocity_From_Encoder
