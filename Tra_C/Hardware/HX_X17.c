@@ -3,9 +3,9 @@
 
 #define SevenTrack 7
 
-int Err_weight[SevenTrack] = {-30, -7, -3, 0, 3, 7, 30};
-
+int Err_weight[SevenTrack] = {-20, -15, -3, 0, 3, 15, 20};
 uint8_t sensordata[SevenTrack] = {0};
+int QuaTurn_Tim = 0;//Right angle detection count 
 //黑1白0
 
 //Read HX_X17 data

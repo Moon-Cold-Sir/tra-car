@@ -58,7 +58,7 @@ CAPTURE1.timerClkPrescale                   = 80;
 CAPTURE1.timerPeriod                        = "50 ms";
 CAPTURE1.captMode                           = "PULSE_WIDTH_UP";
 CAPTURE1.peripheral.$assign                 = "TIMG7";
-CAPTURE1.peripheral.ccp0Pin.$assign         = "PA3";
+CAPTURE1.peripheral.ccp0Pin.$assign         = "PA17";
 CAPTURE1.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
 CAPTURE1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
 CAPTURE1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
@@ -176,7 +176,7 @@ GPIO8.associatedPins[0].internalResistor  = "PULL_UP";
 GPIO8.associatedPins[0].interruptEn       = true;
 GPIO8.associatedPins[0].interruptPriority = "1";
 GPIO8.associatedPins[0].polarity          = "FALL";
-GPIO8.associatedPins[0].pin.$assign       = "PA17";
+GPIO8.associatedPins[0].pin.$assign       = "PA22";
 
 I2C1.$name                             = "OLED";
 I2C1.basicEnableController             = true;

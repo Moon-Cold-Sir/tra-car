@@ -117,9 +117,9 @@ extern "C" {
 #define CAPTURE_ULTRASONIC_INST_LOAD_VALUE                                (49999U)
 /* GPIO defines for channel 0 */
 #define GPIO_CAPTURE_ULTRASONIC_C0_PORT                                    GPIOA
-#define GPIO_CAPTURE_ULTRASONIC_C0_PIN                             DL_GPIO_PIN_3
-#define GPIO_CAPTURE_ULTRASONIC_C0_IOMUX                          (IOMUX_PINCM8)
-#define GPIO_CAPTURE_ULTRASONIC_C0_IOMUX_FUNC              IOMUX_PINCM8_PF_TIMG7_CCP0
+#define GPIO_CAPTURE_ULTRASONIC_C0_PIN                            DL_GPIO_PIN_17
+#define GPIO_CAPTURE_ULTRASONIC_C0_IOMUX                         (IOMUX_PINCM39)
+#define GPIO_CAPTURE_ULTRASONIC_C0_IOMUX_FUNC             IOMUX_PINCM39_PF_TIMG7_CCP0
 
 
 
@@ -219,14 +219,14 @@ extern "C" {
 /* Port definition for Pin Group GPIO_MPU6050 */
 #define GPIO_MPU6050_PORT                                                (GPIOA)
 
-/* Defines for PIN_INT: GPIOA.17 with pinCMx 39 on package pin 10 */
+/* Defines for PIN_INT: GPIOA.22 with pinCMx 47 on package pin 18 */
 // groups represented: ["ENCODERA","GPIO_MPU6050"]
 // pins affected: ["E1A","E1B","PIN_INT"]
 #define GPIO_MULTIPLE_GPIOA_INT_IRQN                            (GPIOA_INT_IRQn)
 #define GPIO_MULTIPLE_GPIOA_INT_IIDX            (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
-#define GPIO_MPU6050_PIN_INT_IIDX                           (DL_GPIO_IIDX_DIO17)
-#define GPIO_MPU6050_PIN_INT_PIN                                (DL_GPIO_PIN_17)
-#define GPIO_MPU6050_PIN_INT_IOMUX                               (IOMUX_PINCM39)
+#define GPIO_MPU6050_PIN_INT_IIDX                           (DL_GPIO_IIDX_DIO22)
+#define GPIO_MPU6050_PIN_INT_PIN                                (DL_GPIO_PIN_22)
+#define GPIO_MPU6050_PIN_INT_IOMUX                               (IOMUX_PINCM47)
 /* Defines for key1: GPIOA.18 with pinCMx 40 on package pin 11 */
 #define KEY_key1_PORT                                                    (GPIOA)
 #define KEY_key1_PIN                                            (DL_GPIO_PIN_18)

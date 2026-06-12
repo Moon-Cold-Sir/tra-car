@@ -21,7 +21,8 @@ C_SRCS += \
 ../Hardware/mspm0_i2c.c \
 ../Hardware/oled_hardware_i2c.c \
 ../Hardware/show.c \
-../Hardware/uart_callback.c 
+../Hardware/uart_callback.c \
+../Hardware/ultrasonic_capture.c 
 
 C_DEPS += \
 ./Hardware/HX_X17.d \
@@ -39,7 +40,8 @@ C_DEPS += \
 ./Hardware/mspm0_i2c.d \
 ./Hardware/oled_hardware_i2c.d \
 ./Hardware/show.d \
-./Hardware/uart_callback.d 
+./Hardware/uart_callback.d \
+./Hardware/ultrasonic_capture.d 
 
 OBJS += \
 ./Hardware/HX_X17.o \
@@ -57,7 +59,8 @@ OBJS += \
 ./Hardware/mspm0_i2c.o \
 ./Hardware/oled_hardware_i2c.o \
 ./Hardware/show.o \
-./Hardware/uart_callback.o 
+./Hardware/uart_callback.o \
+./Hardware/ultrasonic_capture.o 
 
 OBJS__QUOTED += \
 "Hardware\HX_X17.o" \
@@ -75,7 +78,8 @@ OBJS__QUOTED += \
 "Hardware\mspm0_i2c.o" \
 "Hardware\oled_hardware_i2c.o" \
 "Hardware\show.o" \
-"Hardware\uart_callback.o" 
+"Hardware\uart_callback.o" \
+"Hardware\ultrasonic_capture.o" 
 
 C_DEPS__QUOTED += \
 "Hardware\HX_X17.d" \
@@ -93,7 +97,8 @@ C_DEPS__QUOTED += \
 "Hardware\mspm0_i2c.d" \
 "Hardware\oled_hardware_i2c.d" \
 "Hardware\show.d" \
-"Hardware\uart_callback.d" 
+"Hardware\uart_callback.d" \
+"Hardware\ultrasonic_capture.d" 
 
 C_SRCS__QUOTED += \
 "../Hardware/HX_X17.c" \
@@ -111,6 +116,7 @@ C_SRCS__QUOTED += \
 "../Hardware/mspm0_i2c.c" \
 "../Hardware/oled_hardware_i2c.c" \
 "../Hardware/show.c" \
-"../Hardware/uart_callback.c" 
+"../Hardware/uart_callback.c" \
+"../Hardware/ultrasonic_capture.c" 
 
 

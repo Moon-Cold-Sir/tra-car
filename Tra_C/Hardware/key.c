@@ -1,5 +1,6 @@
 #include "key.h"
 
+uint8_t Target_Cycles = 1, carmode = 1;
 
 uint8_t Key1_GetNum(void)
 {

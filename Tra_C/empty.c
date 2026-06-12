@@ -31,12 +31,7 @@
  */
 #include "board.h"
 
-int32_t PWMA,PWMB;
-float speedA = 40.0,speedB = 40.0;
-u8 Flag_Stop = 1;
-int QuaTurn_Tim = 0, Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
-uint8_t Flag_Allwhite = 0, Target_Cycles = 1, carmode = 1, Flag_Repeatqua = 0, Flag_Finishqua = 0;
-float actuall_error = 0;
+u8 Flag_Stop = 0;
 
 uint8_t oled_buffer[32];
 
@@ -74,8 +69,9 @@ int main(void)
 		// Save the last deviation value
 		//printf("%d  %d\n\r",encoderA_cnt,encoderB_cnt);
 		sensortrack();
+		DistVal = Read_Ultrasonic();
 		OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-		OLED_ShowNum(20,1,MotorA.Current_Encoder,5,8);
+		OLED_ShowNum(5*4,1,MotorA.Current_Encoder,5,8);
 		OLED_ShowString(60,1,(uint8_t *)"EB:",8);
 		OLED_ShowNum(78,1,MotorB.Current_Encoder,5,8);
 		OLED_ShowString(2,2,(uint8_t *)"sen:",8);
@@ -93,6 +89,9 @@ int main(void)
 		OLED_ShowString(2,4,(uint8_t *)"yaw:",8);
 		sprintf((char *)oled_buffer, "%-6.1f", yaw);
         OLED_ShowString(5*5,4,oled_buffer,8);
+		OLED_ShowString(2,5,(uint8_t *)"Dist:",8);
+		sprintf((char *)oled_buffer, "%4u", DistVal);
+		OLED_ShowString(5*6,5,oled_buffer,8);
 
 		if(Key3_GetNum() == 1)
 		{
@@ -112,14 +111,15 @@ int main(void)
 		}
 		if(Key2_GetNum() == 1)
 		{
+			OLED_Clear();
 			DL_TimerG_startCounter(TIMER_0_INST);
-			
 			while(1)
 			{
+				DistVal = Read_Ultrasonic();
 				OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-				OLED_ShowNum(20,1,MotorA.Current_Encoder,3,8);
+				OLED_ShowNum(5*4,1,MotorA.Current_Encoder,5,8);
 				OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-				OLED_ShowNum(78,1,MotorB.Current_Encoder,3,8);
+				OLED_ShowNum(78,1,MotorB.Current_Encoder,5,8);
 				OLED_ShowString(2,2,(uint8_t *)"sen:",8);
 				OLED_ShowNum(25,2,sensordata[0],2,8);
 				OLED_ShowNum(38,2,sensordata[1],2,8);
@@ -135,6 +135,9 @@ int main(void)
 				OLED_ShowString(2,4,(uint8_t *)"yaw:",8);
 				sprintf((char *)oled_buffer, "%-6.1f", yaw);
 				OLED_ShowString(5*5,4,oled_buffer,8);
+				OLED_ShowString(2,5,(uint8_t *)"Dist:",8);
+				sprintf((char *)oled_buffer, "%4u", DistVal);
+				OLED_ShowString(5*6,5,oled_buffer,8);
 				//此处如果要是想要停止的更加干脆，可以简单一点让QuaTurn_Tim/4==Target_Cycles-1&&QuaTurn_Tim%3==1时速度全部除以二
 				if(Key2_GetNum() == 1 || (QuaTurn_Tim/4==Target_Cycles))
 				{
@@ -154,52 +157,12 @@ void TIMER_0_INST_IRQHandler(void)
     {
         if(DL_TIMER_IIDX_ZERO)
         {
-			sensortrack();
-			actuall_error = LineTrackingError();
-			Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
-			if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
+			switch (carmode)
 			{
-				QuaTurn_Tim++;
-				Flag_Finishqua = 0;
-				Flag_Repeatqua = 1;
+				case 1: CarMode1(); break;
+				case 2: CarMode2(); break;
+				case 3: CarMode3(); break;
 			}
-			if(CheckIsAllWhite())
-			{
-				Turn_StartGEA = Get_Encoder_countA;
-				Turn_StartGEB = Get_Encoder_countB;
-				Flag_Allwhite = 1;
-			}
-			else
-			{
-				if(Flag_Allwhite)
-				{
-					Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
-					Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
-					if(myabs(Delta_GEA-Delta_GEB)>=200)
-					{
-						MotorA.Target_Encoder = speedA-actuall_error;
-						MotorB.Target_Encoder = speedB+actuall_error;
-						Flag_Allwhite = 0;
-						Flag_Finishqua = 1;// Turn complete = 1
-					}
-					else {}
-				}
-				else
-				{
-					MotorA.Target_Encoder = speedA-actuall_error;
-					MotorB.Target_Encoder = speedB+actuall_error;
-				}
-			}
-			if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
-			{
-				Flag_Repeatqua = 0;
-				Flag_Finishqua = 0;
-			}
-			PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
-			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
-			PWMA = limit_PWM(PWMA,-4000,4000);
-			PWMB = limit_PWM(PWMB,-4000,4000);
-			Set_PWM(PWMA, PWMB);
 		}
     }
 }

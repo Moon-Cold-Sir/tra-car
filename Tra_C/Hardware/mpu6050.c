@@ -237,3 +237,15 @@ int Read_Quad(void)
 
     return 0;
 }
+
+//Calculate target yaw
+float NormalizeAngle(float angle)
+{
+    while(angle > 180)
+        angle -= 360;
+
+    while(angle < -180)
+        angle += 360;
+
+    return angle;
+}

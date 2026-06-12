@@ -17,6 +17,7 @@
 "./Hardware/oled_hardware_i2c.o"
 "./Hardware/show.o"
 "./Hardware/uart_callback.o"
+"./Hardware/ultrasonic_capture.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

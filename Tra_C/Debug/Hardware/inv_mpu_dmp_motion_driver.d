@@ -82,7 +82,8 @@ Hardware/inv_mpu_dmp_motion_driver.o: \
  ../Hardware/motor.h ../Hardware/encoder.h \
  ../Hardware/oled_hardware_i2c.h ../Hardware/HX_X17.h \
  ../Hardware/interrupt.h ../Hardware/kalman.h ../Hardware/control.h \
- ../Hardware/uart_callback.h ../Hardware/show.h ../Hardware/mpu6050.h
+ ../Hardware/uart_callback.h ../Hardware/show.h ../Hardware/mpu6050.h \
+ ../Hardware/ultrasonic_capture.h
 ../Hardware/inv_mpu.h:
 ../Hardware/inv_mpu_dmp_motion_driver.h:
 ../Hardware/dmpKey.h:
@@ -174,3 +175,4 @@ C:/ti/mspm0_sdk_2_05_01_00/source/ti/driverlib/m0p/dl_systick.h:
 ../Hardware/uart_callback.h:
 ../Hardware/show.h:
 ../Hardware/mpu6050.h:
+../Hardware/ultrasonic_capture.h:

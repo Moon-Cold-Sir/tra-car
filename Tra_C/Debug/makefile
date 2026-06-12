@@ -29,6 +29,7 @@ ORDERED_OBJS += \
 "./Hardware/oled_hardware_i2c.o" \
 "./Hardware/show.o" \
 "./Hardware/uart_callback.o" \
+"./Hardware/ultrasonic_capture.o" \
 $(GEN_CMDS__FLAG) \
 -Wl,-ldevice.cmd.genlibs \
 -Wl,-llibc.a \
@@ -174,8 +175,8 @@ empty_LP_MSPM0G3507_nortos_ticlang.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "Hardware\HX_X17.o" "Hardware\board.o" "Hardware\control.o" "Hardware\encoder.o" "Hardware\interrupt.o" "Hardware\inv_mpu.o" "Hardware\inv_mpu_dmp_motion_driver.o" "Hardware\kalman.o" "Hardware\key.o" "Hardware\led.o" "Hardware\motor.o" "Hardware\mpu6050.o" "Hardware\mspm0_i2c.o" "Hardware\oled_hardware_i2c.o" "Hardware\show.o" "Hardware\uart_callback.o" 
-	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "Hardware\HX_X17.d" "Hardware\board.d" "Hardware\control.d" "Hardware\encoder.d" "Hardware\interrupt.d" "Hardware\inv_mpu.d" "Hardware\inv_mpu_dmp_motion_driver.d" "Hardware\kalman.d" "Hardware\key.d" "Hardware\led.d" "Hardware\motor.d" "Hardware\mpu6050.d" "Hardware\mspm0_i2c.d" "Hardware\oled_hardware_i2c.d" "Hardware\show.d" "Hardware\uart_callback.d" 
+	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "Hardware\HX_X17.o" "Hardware\board.o" "Hardware\control.o" "Hardware\encoder.o" "Hardware\interrupt.o" "Hardware\inv_mpu.o" "Hardware\inv_mpu_dmp_motion_driver.o" "Hardware\kalman.o" "Hardware\key.o" "Hardware\led.o" "Hardware\motor.o" "Hardware\mpu6050.o" "Hardware\mspm0_i2c.o" "Hardware\oled_hardware_i2c.o" "Hardware\show.o" "Hardware\uart_callback.o" "Hardware\ultrasonic_capture.o" 
+	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "Hardware\HX_X17.d" "Hardware\board.d" "Hardware\control.d" "Hardware\encoder.d" "Hardware\interrupt.d" "Hardware\inv_mpu.d" "Hardware\inv_mpu_dmp_motion_driver.d" "Hardware\kalman.d" "Hardware\key.d" "Hardware\led.d" "Hardware\motor.d" "Hardware\mpu6050.d" "Hardware\mspm0_i2c.d" "Hardware\oled_hardware_i2c.d" "Hardware\show.d" "Hardware\uart_callback.d" "Hardware\ultrasonic_capture.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

@@ -18,6 +18,7 @@
 #include "show.h"
 
 #include "mpu6050.h"
+#include "ultrasonic_capture.h"
 
 #define ABS(a)      (a>0 ? a:(-a))
 typedef int32_t  s32;
@@ -52,24 +53,10 @@ typedef __I uint32_t vuc32;  /*!< Read Only */
 typedef __I uint16_t vuc16;  /*!< Read Only */
 typedef __I uint8_t vuc8;   /*!< Read Only */
 
-// Enumeration of car types
-// Left and right wheel speed output
-typedef enum 
-{
-	Mec_Car = 0, 
-	Omni_Car, 
-	Akm_Car, 
-	Diff_Car, 
-	FourWheel_Car, 
-	Tank_Car
-} CarMode;
 
 //extern u8 Way_Angle;                                                     //获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波
-//extern int Motor_Left,Motor_Right;                                 //电机PWM变量 应是motor的 向moto致敬
 extern u8 Flag_Stop;                                           //停止标志位和 显示标志位 默认停止 显示打开
-//extern float Voltage,Angle_Balance,Gyro_Balance,Gyro_Turn;                           //平衡倾角 平衡陀螺仪 转向陀螺仪
-//extern int Temperature;
-//extern u32 Distance;                                                //超声波测距
+
 extern u8 PID_Send;
 extern float Velocity_Left,Velocity_Right;  //车轮速度(mm/s)
 extern u16 test_num,show_cnt;

@@ -52,4 +52,8 @@ void Get_Target_Encoder(float Vx,float Vz);
 int Incremental_PI_Left (float Encoder,float Target);
 int Incremental_PI_Right (float Encoder,float Target);
 int myabs(int a);
+void InPlaceTurn(float StartYaw,float TurnAngle);
+void CarMode1(void);
+void CarMode2(void);
+void CarMode3(void);
 #endif

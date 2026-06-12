@@ -1,5 +1,7 @@
 #include "ultrasonic_capture.h"
 
+uint16_t DistVal = 0;
+
 void Ultrasonic_Init(void)
 {
 

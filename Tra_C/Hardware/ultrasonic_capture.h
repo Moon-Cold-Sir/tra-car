@@ -23,6 +23,8 @@
 
 #include "ti_msp_dl_config.h"
 
+extern uint16_t DistVal;
+
 #if defined GPIO_CAPTURE_ULTRASONIC_C0_PORT
 #define CAPTURE_ULTRASONIC_CC_IDX DL_TIMER_CC_0_INDEX
 #elif defined GPIO_CAPTURE_ULTRASONIC_C1_PORT

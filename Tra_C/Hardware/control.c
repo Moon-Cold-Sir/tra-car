@@ -1,25 +1,5 @@
-/***********************************************
-公司：轮趣科技（东莞）有限公司
-品牌：WHEELTEC
-官网：wheeltec.net
-淘宝店铺：shop114407458.taobao.com
-速卖通: https://minibalance.aliexpress.com/store/4455017
-版本：5.7
-修改时间：2021-04-29
-
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version: 5.7
-Update：2021-04-29
-
-All rights reserved
-***********************************************/
 #include "control.h"
 
-u8 Car_Mode=Diff_Car;
 u8 PID_Send;            //延时和调参相关变量
 u16 test_num,show_cnt;
 
@@ -157,3 +137,301 @@ int Incremental_PI_Right (float Encoder,float Target)
 	 return Pwm;                         					//增量输出
 }
 
+//In-place turn
+void InPlaceTurn(float StartYaw,float TurnAngle)
+{
+	Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+    float KP = 0.5f;
+    float KD = 0.4f;
+	
+	int Yaw_PWMA = 0, Yaw_PWMB = 0;
+
+    static float LastError = 0;
+
+    float TargetYaw = NormalizeAngle(StartYaw + TurnAngle);
+
+    float Error = NormalizeAngle(TargetYaw - yaw);
+    float Turn_PWM = KP * Error + KD * (Error - LastError);
+	LastError = Error;
+	
+	Turn_PWM = limit_PWM(Turn_PWM, -40, 40);
+	MotorA.Target_Encoder = Turn_PWM;
+	MotorB.Target_Encoder = -Turn_PWM;
+	Yaw_PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+	Yaw_PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+	Yaw_PWMA = limit_PWM((int)Yaw_PWMA,-4000,4000);
+ 	Yaw_PWMB = limit_PWM((int)Yaw_PWMB,-4000,4000);
+    Set_PWM(Yaw_PWMA,Yaw_PWMB);
+}
+
+//后续优化代码时，可以考虑给传感器增加一个防抖动
+void CarMode1(void)
+{
+	static int32_t PWMA,PWMB;
+	static float speedA = 40.0,speedB = 40.0;
+	static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
+	static uint8_t Flag_Allwhite = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0;
+	static float actuall_error = 0;
+
+	sensortrack();
+	actuall_error = LineTrackingError();
+	Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+	if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
+	{
+		QuaTurn_Tim++;
+		Flag_Finishqua = 0;
+		Flag_Repeatqua = 1;
+	}
+	if(CheckIsAllWhite())
+	{
+		if(MotorA.Last_TargetEncoder - speedA >= 0)
+		{
+			MotorA.Target_Encoder = speedA + 10;
+			MotorB.Target_Encoder = 0;
+		}
+		else
+		{
+			MotorB.Target_Encoder = speedB + 10;
+			MotorA.Target_Encoder = 0;
+		}
+		if(!Flag_Allwhite)
+		{
+			Turn_StartGEA = Get_Encoder_countA;
+			Turn_StartGEB = Get_Encoder_countB;
+		}
+		Flag_Allwhite = 1;
+	}
+	else
+	{
+		if(Flag_Allwhite)
+		{
+			Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
+			Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
+			if(myabs(Delta_GEA-Delta_GEB)>=800)
+			{
+				MotorA.Target_Encoder = speedA-actuall_error;
+				MotorB.Target_Encoder = speedB+actuall_error;
+				Flag_Allwhite = 0;
+				Flag_Finishqua = 1;// Turn complete = 1
+			}
+			else {}
+		}
+		else
+		{
+			MotorA.Target_Encoder = speedA-actuall_error;
+			MotorB.Target_Encoder = speedB+actuall_error;
+		}
+	}
+	
+	if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
+	{
+		Flag_Repeatqua = 0;
+		Flag_Finishqua = 0;
+	}
+	MotorA.Last_TargetEncoder = MotorA.Target_Encoder;
+	MotorB.Last_TargetEncoder = MotorB.Target_Encoder;
+	PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+	PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+	PWMA = limit_PWM(PWMA,-4000,4000);
+	PWMB = limit_PWM(PWMB,-4000,4000);
+	Set_PWM(PWMA, PWMB);
+}
+//优化时可以考虑增加角度传感器，直接转固定角度而非延时
+void CarMode2(void)
+{
+	static int32_t PWMA,PWMB;
+	static float speedA = 40.0,speedB = 40.0;
+	static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0, Count_Time = 0;
+	static uint8_t Flag_Allwhite = 0, Flag_AllwhiteAvo = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0, Obs_Avoid = 0;
+	static float actuall_error = 0;
+
+	sensortrack();
+	actuall_error = LineTrackingError();
+	Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+	if(DistVal <= 350 && DistVal > 0 || Obs_Avoid == 1)
+	{
+		if(DistVal <= 350 && Obs_Avoid == 0 && DistVal > 0)
+		{
+			Turn_StartGEA = 0;
+			Turn_StartGEB = 0;
+			Delta_GEA = 0;
+			Delta_GEB = 0;
+			Flag_Repeatqua = 0;
+			Flag_Finishqua = 0;
+			Flag_Allwhite = 0;
+		}
+		Obs_Avoid = 1;
+		if(Count_Time >= 0 && Count_Time <= 40)
+		{
+			MotorA.Target_Encoder = speedA-25;
+			MotorB.Target_Encoder = speedB+15;
+			Count_Time++;
+		}
+		else if(Count_Time >40 && Count_Time <= 130)
+		{
+			MotorA.Target_Encoder = speedA+15;
+			MotorB.Target_Encoder = speedB-25;
+			Count_Time++;
+		}
+		else if(Count_Time >130)
+		{
+			MotorA.Target_Encoder = speedA;
+			MotorB.Target_Encoder = speedB;
+		}
+		if(CheckIsAllWhite())
+		{
+			Flag_AllwhiteAvo = 1;
+		}
+		if(Flag_AllwhiteAvo == 1)
+		{
+			if(Flag_AllwhiteAvo != CheckIsAllWhite())
+			{
+				Obs_Avoid = 0;
+				Flag_AllwhiteAvo = 0;
+				Count_Time = 0;
+			}
+		}
+	}
+	else 
+	{
+		if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
+		{
+			QuaTurn_Tim++;
+			Flag_Finishqua = 0;
+			Flag_Repeatqua = 1;
+		}
+		if(CheckIsAllWhite())
+		{
+			if(MotorA.Last_TargetEncoder - speedA >= 0)
+			{
+				MotorA.Target_Encoder = speedA + 10;
+				MotorB.Target_Encoder = 0;
+			}
+			else
+			{
+				MotorB.Target_Encoder = speedB + 10;
+				MotorA.Target_Encoder = 0;
+			}
+			if(!Flag_Allwhite)
+			{
+				Turn_StartGEA = Get_Encoder_countA;
+				Turn_StartGEB = Get_Encoder_countB;
+			}
+			Flag_Allwhite = 1;
+		}
+		else
+		{
+			if(Flag_Allwhite)
+			{
+				Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
+				Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
+				if(myabs(Delta_GEA-Delta_GEB)>=800)
+				{
+					MotorA.Target_Encoder = speedA-actuall_error;
+					MotorB.Target_Encoder = speedB+actuall_error;
+					Flag_Allwhite = 0;
+					Flag_Finishqua = 1;// Turn complete = 1
+				}
+				else {}
+			}
+			else
+			{
+				MotorA.Target_Encoder = speedA-actuall_error;
+				MotorB.Target_Encoder = speedB+actuall_error;
+			}
+		}
+		
+		if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
+		{
+			Flag_Repeatqua = 0;
+			Flag_Finishqua = 0;
+		}
+	}
+	MotorA.Last_TargetEncoder = MotorA.Target_Encoder;
+	MotorB.Last_TargetEncoder = MotorB.Target_Encoder;
+	PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+	PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+	PWMA = limit_PWM(PWMA,-4000,4000);
+	PWMB = limit_PWM(PWMB,-4000,4000);
+	Set_PWM(PWMA, PWMB);
+}
+
+void CarMode3(void)
+{
+	static float StartYaw = 0.0;
+	static int tem = 0;
+	if(tem == 0)
+	{
+		StartYaw = yaw;
+		tem++;
+	}
+	InPlaceTurn(StartYaw,-135.0);
+	// static int32_t PWMA,PWMB;
+	// static float speedA = 40.0,speedB = 40.0;
+	// static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
+	// static uint8_t Flag_Allwhite = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0;
+	// static float actuall_error = 0;
+
+	// sensortrack();
+	// actuall_error = LineTrackingError();
+	// Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+	// if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
+	// {
+	// 	QuaTurn_Tim++;
+	// 	Flag_Finishqua = 0;
+	// 	Flag_Repeatqua = 1;
+	// }
+	// if(CheckIsAllWhite())
+	// {
+	// 	if(MotorA.Last_TargetEncoder - speedA >= 0)
+	// 	{
+	// 		MotorA.Target_Encoder = speedA + 10;
+	// 		MotorB.Target_Encoder = 0;
+	// 	}
+	// 	else
+	// 	{
+	// 		MotorB.Target_Encoder = speedB + 10;
+	// 		MotorA.Target_Encoder = 0;
+	// 	}
+	// 	if(!Flag_Allwhite)
+	// 	{
+	// 		Turn_StartGEA = Get_Encoder_countA;
+	// 		Turn_StartGEB = Get_Encoder_countB;
+	// 	}
+	// 	Flag_Allwhite = 1;
+	// }
+	// else
+	// {
+	// 	if(Flag_Allwhite)
+	// 	{
+	// 		Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
+	// 		Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
+	// 		if(myabs(Delta_GEA-Delta_GEB)>=800)
+	// 		{
+	// 			MotorA.Target_Encoder = speedA-actuall_error;
+	// 			MotorB.Target_Encoder = speedB+actuall_error;
+	// 			Flag_Allwhite = 0;
+	// 			Flag_Finishqua = 1;// Turn complete = 1
+	// 		}
+	// 		else {}
+	// 	}
+	// 	else
+	// 	{
+	// 		MotorA.Target_Encoder = speedA-actuall_error;
+	// 		MotorB.Target_Encoder = speedB+actuall_error;
+	// 	}
+	// }
+	
+	// if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
+	// {
+	// 	Flag_Repeatqua = 0;
+	// 	Flag_Finishqua = 0;
+	// }
+	// MotorA.Last_TargetEncoder = MotorA.Target_Encoder;
+	// MotorB.Last_TargetEncoder = MotorB.Target_Encoder;
+	// PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+	// PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+	// PWMA = limit_PWM(PWMA,-4000,4000);
+	// PWMB = limit_PWM(PWMB,-4000,4000);
+	// Set_PWM(PWMA, PWMB);
+}
