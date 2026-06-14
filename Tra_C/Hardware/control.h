@@ -46,13 +46,15 @@ typedef struct
 //extern Encoder OriginalEncoder; 					//编码器原始数据   
 extern Motor_parameter MotorA,MotorB;				//左右电机相关变量
 extern float Voltage_Count,Voltage_All;
-extern float Velocity_KPa,Velocity_KIa,Velocity_KPb,Velocity_KIb;	
+extern float Velocity_KPa,Velocity_KIa,Velocity_KPb,Velocity_KIb;
+extern float RelativeYaw, Yaw_Zero, Target_Yaw, speedA, speedB, Turn_PWM;
+extern float PwmB, PwmA, Last_biasB, Last_biasA;
 void Get_Velocity_From_Encoder(int Encoder1,int Encoder2);
 void Get_Target_Encoder(float Vx,float Vz);
 int Incremental_PI_Left (float Encoder,float Target);
 int Incremental_PI_Right (float Encoder,float Target);
 int myabs(int a);
-void InPlaceTurn(float StartYaw,float TurnAngle);
+void InPlaceTurn(float TargetYaw);
 void CarMode1(void);
 void CarMode2(void);
 void CarMode3(void);

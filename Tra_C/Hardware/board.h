@@ -63,7 +63,7 @@ extern u16 test_num,show_cnt;
 extern u8 Car_Mode;
 extern volatile unsigned long tick_ms;
 
-// Systick reload value, 24-bit
+// Systick reload value, 24-bit 
 #define SysTickMAX_COUNT 0xFFFFFF
 
 // Systick clock frequency

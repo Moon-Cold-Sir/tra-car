@@ -249,3 +249,9 @@ float NormalizeAngle(float angle)
 
     return angle;
 }
+
+//get relative yaw
+float GetRelativeYaw(float Yaw_Zero)
+{
+    return NormalizeAngle(yaw - Yaw_Zero);
+}

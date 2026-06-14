@@ -1,14 +1,20 @@
 #include "control.h"
 
+#define DELAY_TIME 50
+
 u8 PID_Send;            //延时和调参相关变量
 u16 test_num,show_cnt;
 
 u8 CCD_count,ELE_count;
 int Sensor_Left,Sensor_Middle,Sensor_Right,Sensor;
 
+float RelativeYaw = 0.0, Target_Yaw = 0.0, Turn_PWM = 0.0, PwmB = 0.0, PwmA = 0.0, Last_biasB = 0.0, Last_biasA = 0.0;
+
 Encoder OriginalEncoder; 					//编码器原始数据   
 Motor_parameter MotorA,MotorB;				//左右电机相关变量
 float Velocity_KPb=40,Velocity_KIb=1.0,Velocity_KPa=40,Velocity_KIa=1.0;	//速度环pi,a/b reflect motorA/motorB
+
+float speedA = 40.0, speedB = 40.0;	//motor original speed
 
 /**************************************************************************
 Function: Get_Velocity_From_Encoder
@@ -116,51 +122,51 @@ pwm+=Kp[e（k）-e(k-1)]+Ki*e(k)
 **************************************************************************/
 int Incremental_PI_Left (float Encoder,float Target)
 { 	
-	 static float Bias,Pwm,Last_bias;
-	 Bias=Target-Encoder;                					//计算偏差
-	 Pwm+=Velocity_KPb*(Bias-Last_bias)+Velocity_KIb*Bias;   	//增量式PI控制器
+	 static float BiasB;
+	 BiasB=Target-Encoder;                					//计算偏差
+	 PwmB+=Velocity_KPb*(BiasB-Last_biasB)+Velocity_KIb*BiasB;   	//增量式PI控制器
 //	 if(Pwm>7200)Pwm=7200;
 //	 if(Pwm<-7200)Pwm=-7200;
-	 Last_bias=Bias;	                   					//保存上一次偏差 
-	 return Pwm;                         					//增量输出
+	 Last_biasB=BiasB;	                   					//保存上一次偏差 
+	 return PwmB;                         					//增量输出
 }
 
 
 int Incremental_PI_Right (float Encoder,float Target)
 { 	
-	 static float Bias,Pwm,Last_bias;
-	 Bias=Target-Encoder;                					//计算偏差
-	 Pwm+=Velocity_KPa*(Bias-Last_bias)+Velocity_KIa*Bias;   	//增量式PI控制器
+	 static float BiasA;
+	 BiasA=Target-Encoder;                					//计算偏差
+	 PwmA+=Velocity_KPa*(BiasA-Last_biasA)+Velocity_KIa*BiasA;   	//增量式PI控制器
 //	 if(Pwm>7200)Pwm=7200;
 //	 if(Pwm<-7200)Pwm=-7200;
-	 Last_bias=Bias;	                   					//保存上一次偏差 
-	 return Pwm;                         					//增量输出
+	 Last_biasA=BiasA;	                   					//保存上一次偏差 
+	 return PwmA;                         					//增量输出
 }
 
 //In-place turn
-void InPlaceTurn(float StartYaw,float TurnAngle)
+void InPlaceTurn(float TargetYaw)
 {
 	Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
     float KP = 0.5f;
     float KD = 0.4f;
-	
 	int Yaw_PWMA = 0, Yaw_PWMB = 0;
-
+	float Error = 0;
     static float LastError = 0;
 
-    float TargetYaw = NormalizeAngle(StartYaw + TurnAngle);
-
-    float Error = NormalizeAngle(TargetYaw - yaw);
-    float Turn_PWM = KP * Error + KD * (Error - LastError);
+	RelativeYaw = GetRelativeYaw(Yaw_Zero);
+	Error = NormalizeAngle(TargetYaw - RelativeYaw);
+  	Turn_PWM = KP * Error + KD * (Error - LastError);
 	LastError = Error;
-	
 	Turn_PWM = limit_PWM(Turn_PWM, -40, 40);
-	MotorA.Target_Encoder = Turn_PWM;
-	MotorB.Target_Encoder = -Turn_PWM;
+	if(Turn_PWM > -3&&Turn_PWM < 0) Turn_PWM = -3;
+	else if(Turn_PWM > 0&&Turn_PWM < 3) Turn_PWM = 3;
+
+	MotorA.Target_Encoder = speedA + Turn_PWM;
+	MotorB.Target_Encoder = speedB - Turn_PWM;
 	Yaw_PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
 	Yaw_PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
-	Yaw_PWMA = limit_PWM((int)Yaw_PWMA,-4000,4000);
- 	Yaw_PWMB = limit_PWM((int)Yaw_PWMB,-4000,4000);
+	Yaw_PWMA = limit_PWM(Yaw_PWMA,-4000,4000);
+ 	Yaw_PWMB = limit_PWM(Yaw_PWMB,-4000,4000);
     Set_PWM(Yaw_PWMA,Yaw_PWMB);
 }
 
@@ -240,7 +246,6 @@ void CarMode1(void)
 void CarMode2(void)
 {
 	static int32_t PWMA,PWMB;
-	static float speedA = 40.0,speedB = 40.0;
 	static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0, Count_Time = 0;
 	static uint8_t Flag_Allwhite = 0, Flag_AllwhiteAvo = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0, Obs_Avoid = 0;
 	static float actuall_error = 0;
@@ -263,17 +268,17 @@ void CarMode2(void)
 		Obs_Avoid = 1;
 		if(Count_Time >= 0 && Count_Time <= 40)
 		{
-			MotorA.Target_Encoder = speedA-25;
-			MotorB.Target_Encoder = speedB+15;
+			MotorA.Target_Encoder = speedA+25;
+			MotorB.Target_Encoder = speedB-15;
 			Count_Time++;
 		}
-		else if(Count_Time >40 && Count_Time <= 130)
+		else if(Count_Time >40 && Count_Time <= 150)
 		{
-			MotorA.Target_Encoder = speedA+15;
-			MotorB.Target_Encoder = speedB-25;
+			MotorA.Target_Encoder = speedA-15;
+			MotorB.Target_Encoder = speedB+25;
 			Count_Time++;
 		}
-		else if(Count_Time >130)
+		else if(Count_Time >150)
 		{
 			MotorA.Target_Encoder = speedA;
 			MotorB.Target_Encoder = speedB;
@@ -356,82 +361,138 @@ void CarMode2(void)
 	Set_PWM(PWMA, PWMB);
 }
 
+//思考良久，我认为这题如果采用常规的巡线方法很难说能成功。但是纯角度搞得我有些不自信。要不然，两个都试试？
 void CarMode3(void)
 {
-	static float StartYaw = 0.0;
-	static int tem = 0;
-	if(tem == 0)
-	{
-		StartYaw = yaw;
-		tem++;
-	}
-	InPlaceTurn(StartYaw,-135.0);
-	// static int32_t PWMA,PWMB;
-	// static float speedA = 40.0,speedB = 40.0;
-	// static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
-	// static uint8_t Flag_Allwhite = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0;
-	// static float actuall_error = 0;
+	static uint8_t Track_Mode = 1, Turn_Mode = 0, Straight_Mode = 0;
 
-	// sensortrack();
-	// actuall_error = LineTrackingError();
-	// Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
-	// if(TrackQua()&&Flag_Repeatqua == 0&&Flag_Finishqua == 0)
-	// {
-	// 	QuaTurn_Tim++;
-	// 	Flag_Finishqua = 0;
-	// 	Flag_Repeatqua = 1;
-	// }
-	// if(CheckIsAllWhite())
-	// {
-	// 	if(MotorA.Last_TargetEncoder - speedA >= 0)
-	// 	{
-	// 		MotorA.Target_Encoder = speedA + 10;
-	// 		MotorB.Target_Encoder = 0;
-	// 	}
-	// 	else
-	// 	{
-	// 		MotorB.Target_Encoder = speedB + 10;
-	// 		MotorA.Target_Encoder = 0;
-	// 	}
-	// 	if(!Flag_Allwhite)
-	// 	{
-	// 		Turn_StartGEA = Get_Encoder_countA;
-	// 		Turn_StartGEB = Get_Encoder_countB;
-	// 	}
-	// 	Flag_Allwhite = 1;
-	// }
-	// else
-	// {
-	// 	if(Flag_Allwhite)
-	// 	{
-	// 		Delta_GEA = Get_Encoder_countA - Turn_StartGEA;
-	// 		Delta_GEB = Get_Encoder_countB - Turn_StartGEB;
-	// 		if(myabs(Delta_GEA-Delta_GEB)>=800)
-	// 		{
-	// 			MotorA.Target_Encoder = speedA-actuall_error;
-	// 			MotorB.Target_Encoder = speedB+actuall_error;
-	// 			Flag_Allwhite = 0;
-	// 			Flag_Finishqua = 1;// Turn complete = 1
-	// 		}
-	// 		else {}
-	// 	}
-	// 	else
-	// 	{
-	// 		MotorA.Target_Encoder = speedA-actuall_error;
-	// 		MotorB.Target_Encoder = speedB+actuall_error;
-	// 	}
-	// }
-	
-	// if(Flag_Finishqua == 1&&sensordata[3] == 1&&Flag_Repeatqua == 1) 
-	// {
-	// 	Flag_Repeatqua = 0;
-	// 	Flag_Finishqua = 0;
-	// }
-	// MotorA.Last_TargetEncoder = MotorA.Target_Encoder;
-	// MotorB.Last_TargetEncoder = MotorB.Target_Encoder;
-	// PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
-	// PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
-	// PWMA = limit_PWM(PWMA,-4000,4000);
-	// PWMB = limit_PWM(PWMB,-4000,4000);
-	// Set_PWM(PWMA, PWMB);
+	//Line tracking parameter initialization
+	static int32_t PWMA,PWMB;
+	static int Turn_StartGEA = 0, Turn_StartGEB = 0, Delta_GEA = 0, Delta_GEB = 0;
+	static int Tem_Time = 0; 
+	static uint8_t Flag_Allwhite = 0, Flag_Repeatqua = 0, Flag_Finishqua = 0, Flag_AcrossLine = 0;
+	static float actuall_error = 0;
+
+	sensortrack();
+
+	if(Track_Mode)
+	{
+		speedA = 40.0;
+		speedB = 40.0;
+		actuall_error = LineTrackingError();
+		if (myabs((int)actuall_error)> 18)
+		{
+			actuall_error = 0.0;
+		}
+		Get_Velocity_From_Encoder(Get_Encoder_countA,Get_Encoder_countB);
+		if(CheckIsAllWhite())
+		{
+			Stop_Car();
+			if((int)MotorA.Current_Encoder == 0&&(int)MotorB.Current_Encoder == 0)
+			{
+				if(Tem_Time == DELAY_TIME)
+				{
+					Turn_Mode = 1;
+					Track_Mode = 0;
+					QuaTurn_Tim++;
+					Tem_Time = 0;
+				}
+				Tem_Time++;
+			}
+			else 
+			{
+				Tem_Time = 0;
+			}
+		}
+		else
+		{
+			MotorA.Target_Encoder = speedA-actuall_error;
+			MotorB.Target_Encoder = speedB+actuall_error;
+			PWMA = Incremental_PI_Right(MotorA.Current_Encoder,MotorA.Target_Encoder);// PID Control
+			PWMB = Incremental_PI_Left(MotorB.Current_Encoder,MotorB.Target_Encoder);// PID Control
+			PWMA = limit_PWM(PWMA,-4000,4000);
+			PWMB = limit_PWM(PWMB,-4000,4000);
+			Set_PWM(PWMA, PWMB);
+		}
+	}
+
+	else if(Turn_Mode)
+	{
+		speedA = 0.0;
+		speedB = 0.0;
+		switch (QuaTurn_Tim%4)
+		{
+			case 0:Target_Yaw = 0;break;
+			case 1:Target_Yaw = 135;break;
+			case 2:Target_Yaw = 0;break;
+			case 3:Target_Yaw = -135;break;
+		}
+
+		InPlaceTurn(Target_Yaw);
+		if((int)Turn_PWM == 0)
+		{
+			if(Tem_Time == DELAY_TIME)
+			{
+				Turn_Mode = 0;
+				switch (QuaTurn_Tim%4)
+				{
+					case 0:Track_Mode = 1;break;
+					case 1:Straight_Mode = 1;break;
+					case 2:Track_Mode = 1;break;
+					case 3:Straight_Mode = 1;break;
+				}
+				speedA = 60.0;
+				speedB = 60.0;
+				Tem_Time = 0;
+				PwmB = 0;
+				PwmA = 0;
+				Last_biasB = 0.0;
+				Last_biasA = 0.0;
+			}
+			Tem_Time++;
+		}
+		else 
+		{
+			Tem_Time = 0;
+		}
+	}
+
+	else if(Straight_Mode)
+	{
+		InPlaceTurn(Target_Yaw);
+		
+		if(Flag_AcrossLine && CheckIsAllWhite())
+		{
+			Stop_Car();
+			if((int)MotorA.Current_Encoder == 0&&(int)MotorB.Current_Encoder == 0)
+			{
+				if(Tem_Time == DELAY_TIME)
+				{
+					Flag_Allwhite = 0;
+					Flag_AcrossLine = 0;
+					Straight_Mode = 0;
+					Turn_Mode = 1;
+					QuaTurn_Tim ++;
+					Tem_Time = 0;
+					PwmB = 0;
+					PwmA = 0;
+					Last_biasB = 0.0;
+					Last_biasA = 0.0;
+				}
+				Tem_Time++;
+			}
+			else 
+			{
+				Tem_Time = 0;
+			}
+		}
+		else if(CheckIsAllWhite())
+		{
+			Flag_Allwhite = 1;
+		}
+		else if((!CheckIsAllWhite()) && Flag_Allwhite)
+		{
+			Flag_AcrossLine = 1;
+		}
+	}
 }
