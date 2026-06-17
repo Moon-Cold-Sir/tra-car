@@ -59,3 +59,19 @@ uint8_t TrackQua(void)
     {return 1;}
     else {return 0;}
 }
+
+//Counter-clockwise left right angle dectected or clockwise right right angle dectected
+uint8_t TrackQua_CCLeft(void)
+{
+    if(LineTrackingError()<(Err_weight[0]+Err_weight[1]))
+    {return 1;}
+    else {return 0;}
+}
+
+//Counter-clockwise right right angle dectected or clockwise left right angle dectected
+uint8_t TrackQua_CCRight(void)
+{
+    if(LineTrackingError()>(Err_weight[5]+Err_weight[6]))
+    {return 1;}
+    else {return 0;}
+}

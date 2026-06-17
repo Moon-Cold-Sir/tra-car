@@ -31,8 +31,7 @@
  */
 #include "board.h"
 
-u8 Flag_Stop = 0, Final_Turn = 0, Flag_Oriyaw = 0;
-float Yaw_Zero = 0.0;
+u8 Flag_Stop = 0;
 
 uint8_t oled_buffer[32];
 
@@ -72,9 +71,11 @@ int main(void)
 		sensortrack();
 		DistVal = Read_Ultrasonic();
 		OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-		OLED_ShowNum(5*4,1,MotorA.Current_Encoder,5,8);
+		sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
+		OLED_ShowString(5*4,1,oled_buffer,8);
 		OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-		OLED_ShowNum(78,1,MotorB.Current_Encoder,5,8);
+		sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
+		OLED_ShowString(5*16,1,oled_buffer,8);
 		OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
 		OLED_ShowNum(25,2,Target_Cycles,2,8);
 		OLED_ShowString(60,2,(uint8_t *)"mode:",8);
@@ -110,21 +111,17 @@ int main(void)
 		}
 		if(Key2_GetNum() == 1)
 		{
-			//Initialize yaw to 0
-			if(Flag_Oriyaw == 0)
-			{
-				Yaw_Zero = yaw;
-				Flag_Oriyaw++;
-			}
 			OLED_Clear();
 			DL_TimerG_startCounter(TIMER_0_INST);
 			while(1)
 			{
 				DistVal = Read_Ultrasonic();
 				OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-				OLED_ShowNum(5*4,1,MotorA.Current_Encoder,5,8);
+				sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
+				OLED_ShowString(5*4,1,oled_buffer,8);
 				OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-				OLED_ShowNum(78,1,MotorB.Current_Encoder,5,8);
+				sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
+				OLED_ShowString(5*16,1,oled_buffer,8);
 				OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
 				OLED_ShowNum(25,2,Target_Cycles,2,8);
 				OLED_ShowString(60,2,(uint8_t *)"mode:",8);
@@ -144,22 +141,32 @@ int main(void)
 				//此处如果要是想要停止的更加干脆，可以简单一点让QuaTurn_Tim/4==Target_Cycles-1&&QuaTurn_Tim%3==1时速度全部除以二
 				if(Key2_GetNum() == 1 || (QuaTurn_Tim/4==Target_Cycles))
 				{
-					DL_TimerG_stopCounter(TIMER_0_INST);
-					if(((int)MotorA.Current_Encoder != 0 || (int)MotorB.Current_Encoder != 0) && Final_Turn == 0)
+					//DL_TimerG_stopCounter(TIMER_0_INST);
+					carmode = 4;
+					while(1)
 					{
-						Stop_Car();
-					}
-					else if ((int)MotorA.Current_Encoder == 0 && (int)MotorB.Current_Encoder == 0 && Final_Turn == 0) 
-					{
-						Final_Turn = 1;
-						Last_biasA = 0;
-						Last_biasB = 0;
-						PwmA = 0;
-						PwmB = 0;
-					}
-					if(Final_Turn == 1)
-					{
-						InPlaceTurn(0);
+						OLED_ShowString(2,1,(uint8_t *)"EA:",8);
+						sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
+						OLED_ShowString(5*4,1,oled_buffer,8);
+						OLED_ShowString(60,1,(uint8_t *)"EB:",8);
+						sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
+						OLED_ShowString(5*16,1,oled_buffer,8);
+						OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
+						OLED_ShowNum(25,2,Target_Cycles,2,8);
+						OLED_ShowString(60,2,(uint8_t *)"mode:",8);
+						OLED_ShowNum(90,2,carmode,2,8);
+						OLED_ShowString(2,3,(uint8_t *)"Dist:",8);
+						sprintf((char *)oled_buffer, "%4u", DistVal);
+						OLED_ShowString(5*6,3,oled_buffer,8);
+						OLED_ShowString(2,4,(uint8_t *)"ActYaw:",8);
+						sprintf((char *)oled_buffer, "%-6.1f", RelativeYaw);
+						OLED_ShowString(5*9,4,oled_buffer,8);
+						OLED_ShowString(2,5,(uint8_t *)"yaw:",8);
+						sprintf((char *)oled_buffer, "%-6.1f", yaw);
+						OLED_ShowString(5*5,5,oled_buffer,8);
+						OLED_ShowString(2,6,(uint8_t *)"TarYaw:",8);
+						sprintf((char *)oled_buffer, "%-6.1f", Target_Yaw);
+						OLED_ShowString(5*9,6,oled_buffer,8);
 					}
 				}
 			}
@@ -179,6 +186,7 @@ void TIMER_0_INST_IRQHandler(void)
 				case 1: CarMode1(); break;
 				case 2: CarMode2(); break;
 				case 3: CarMode3(); break;
+				case 4: CarMode4(); break;
 			}
 
 		}

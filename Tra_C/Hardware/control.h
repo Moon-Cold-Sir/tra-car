@@ -49,6 +49,9 @@ extern float Voltage_Count,Voltage_All;
 extern float Velocity_KPa,Velocity_KIa,Velocity_KPb,Velocity_KIb;
 extern float RelativeYaw, Yaw_Zero, Target_Yaw, speedA, speedB, Turn_PWM;
 extern float PwmB, PwmA, Last_biasB, Last_biasA;
+
+extern int Flag_Repeatqua, Flag_Finishqua;
+
 void Get_Velocity_From_Encoder(int Encoder1,int Encoder2);
 void Get_Target_Encoder(float Vx,float Vz);
 int Incremental_PI_Left (float Encoder,float Target);
@@ -58,4 +61,5 @@ void InPlaceTurn(float TargetYaw);
 void CarMode1(void);
 void CarMode2(void);
 void CarMode3(void);
+void CarMode4(void);
 #endif

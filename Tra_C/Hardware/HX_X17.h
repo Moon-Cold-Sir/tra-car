@@ -10,4 +10,6 @@ void sensortrack(void);
 uint8_t CheckIsAllWhite(void);
 float LineTrackingError(void);
 uint8_t TrackQua(void);
+uint8_t TrackQua_CCLeft(void);
+uint8_t TrackQua_CCRight(void);
 #endif
