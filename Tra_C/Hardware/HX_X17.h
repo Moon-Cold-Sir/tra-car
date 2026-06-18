@@ -3,6 +3,7 @@
 #include "ti_msp_dl_config.h"
 #include "board.h"
 
+extern int Err_weight[7];
 extern uint8_t sensordata[7];
 extern int QuaTurn_Tim;
 

@@ -6,6 +6,8 @@
 
 #define I2C_TIMEOUT_MS  (10)
 
+static uint8_t oled_buffer[32];
+
 //OLED的显存
 //存放格式如下.
 //[0]0 1 2 3 ... 127	
@@ -350,3 +352,29 @@ void OLED_Init(void)
 //     else OLED_ShowString(74,5,(uint8_t *)" ",8);
 //     OLED_ShowNum(82, 5, (uint32_t)temp_int, 4,8);
 // }
+
+void OLED_ShowInformation(void)
+{
+    OLED_ShowString(2,1,(uint8_t *)"EA:",8);
+	sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
+	OLED_ShowString(5*4,1,oled_buffer,8);
+	OLED_ShowString(60,1,(uint8_t *)"EB:",8);
+    sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
+    OLED_ShowString(5*16,1,oled_buffer,8);
+    OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
+    OLED_ShowNum(25,2,Target_Cycles,2,8);
+    OLED_ShowString(60,2,(uint8_t *)"mode:",8);
+    OLED_ShowNum(90,2,carmode,2,8);
+    OLED_ShowString(2,3,(uint8_t *)"Dist:",8);
+    sprintf((char *)oled_buffer, "%4u", DistVal);
+    OLED_ShowString(5*6,3,oled_buffer,8);
+    OLED_ShowString(2,4,(uint8_t *)"ActYaw:",8);
+    sprintf((char *)oled_buffer, "%-6.1f", RelativeYaw);
+    OLED_ShowString(5*9,4,oled_buffer,8);
+    OLED_ShowString(2,5,(uint8_t *)"yaw:",8);
+    sprintf((char *)oled_buffer, "%-6.1f", yaw);
+    OLED_ShowString(5*5,5,oled_buffer,8);
+    OLED_ShowString(2,6,(uint8_t *)"TarYaw:",8);
+    sprintf((char *)oled_buffer, "%-6.1f", Target_Yaw);
+    OLED_ShowString(5*9,6,oled_buffer,8);
+}

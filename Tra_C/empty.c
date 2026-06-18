@@ -33,8 +33,6 @@
 
 u8 Flag_Stop = 0;
 
-uint8_t oled_buffer[32];
-
 //蓝牙通信配置了串口1(bound:9600)+DMA，用于防止编码器中断+定时中断过多导致接收的蓝牙数据丢失
 int main(void)
 {
@@ -58,7 +56,7 @@ int main(void)
 
 	NVIC_ClearPendingIRQ(TIMER_0_INST_INT_IRQN);
 	NVIC_ClearPendingIRQ(TIMER_1_INST_INT_IRQN);
-	NVIC_EnableIRQ(TIMER_0_INST_INT_IRQN);;
+	NVIC_EnableIRQ(TIMER_0_INST_INT_IRQN);
 	NVIC_EnableIRQ(TIMER_1_INST_INT_IRQN);
 
 	BT_DAMConfig();
@@ -70,28 +68,7 @@ int main(void)
 		//printf("%d  %d\n\r",encoderA_cnt,encoderB_cnt);
 		sensortrack();
 		DistVal = Read_Ultrasonic();
-		OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-		sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
-		OLED_ShowString(5*4,1,oled_buffer,8);
-		OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-		sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
-		OLED_ShowString(5*16,1,oled_buffer,8);
-		OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
-		OLED_ShowNum(25,2,Target_Cycles,2,8);
-		OLED_ShowString(60,2,(uint8_t *)"mode:",8);
-		OLED_ShowNum(90,2,carmode,2,8);
-		OLED_ShowString(2,3,(uint8_t *)"Dist:",8);
-		sprintf((char *)oled_buffer, "%4u", DistVal);
-		OLED_ShowString(5*6,3,oled_buffer,8);
-		OLED_ShowString(2,4,(uint8_t *)"ActYaw:",8);
-		sprintf((char *)oled_buffer, "%-6.1f", RelativeYaw);
-		OLED_ShowString(5*9,4,oled_buffer,8);
-		OLED_ShowString(2,5,(uint8_t *)"yaw:",8);
-		sprintf((char *)oled_buffer, "%-6.1f", yaw);
-		OLED_ShowString(5*5,5,oled_buffer,8);
-		OLED_ShowString(2,6,(uint8_t *)"TarYaw:",8);
-		sprintf((char *)oled_buffer, "%-6.1f", Target_Yaw);
-		OLED_ShowString(5*9,6,oled_buffer,8);
+		OLED_ShowInformation();
 
 		if(Key3_GetNum() == 1)
 		{
@@ -116,57 +93,14 @@ int main(void)
 			while(1)
 			{
 				DistVal = Read_Ultrasonic();
-				OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-				sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
-				OLED_ShowString(5*4,1,oled_buffer,8);
-				OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-				sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
-				OLED_ShowString(5*16,1,oled_buffer,8);
-				OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
-				OLED_ShowNum(25,2,Target_Cycles,2,8);
-				OLED_ShowString(60,2,(uint8_t *)"mode:",8);
-				OLED_ShowNum(90,2,carmode,2,8);
-				OLED_ShowString(2,3,(uint8_t *)"Dist:",8);
-				sprintf((char *)oled_buffer, "%4u", DistVal);
-				OLED_ShowString(5*6,3,oled_buffer,8);
-				OLED_ShowString(2,4,(uint8_t *)"ActYaw:",8);
-				sprintf((char *)oled_buffer, "%-6.1f", RelativeYaw);
-				OLED_ShowString(5*9,4,oled_buffer,8);
-				OLED_ShowString(2,5,(uint8_t *)"yaw:",8);
-				sprintf((char *)oled_buffer, "%-6.1f", yaw);
-				OLED_ShowString(5*5,5,oled_buffer,8);
-				OLED_ShowString(2,6,(uint8_t *)"TarYaw:",8);
-				sprintf((char *)oled_buffer, "%-6.1f", Target_Yaw);
-				OLED_ShowString(5*9,6,oled_buffer,8);
-				//此处如果要是想要停止的更加干脆，可以简单一点让QuaTurn_Tim/4==Target_Cycles-1&&QuaTurn_Tim%3==1时速度全部除以二
+				OLED_ShowInformation();
 				if(Key2_GetNum() == 1 || (QuaTurn_Tim/4==Target_Cycles))
 				{
-					//DL_TimerG_stopCounter(TIMER_0_INST);
 					carmode = 4;
 					while(1)
 					{
-						OLED_ShowString(2,1,(uint8_t *)"EA:",8);
-						sprintf((char *)oled_buffer, "%-6.1f", MotorA.Current_Encoder);
-						OLED_ShowString(5*4,1,oled_buffer,8);
-						OLED_ShowString(60,1,(uint8_t *)"EB:",8);
-						sprintf((char *)oled_buffer, "%-6.1f", MotorB.Current_Encoder);
-						OLED_ShowString(5*16,1,oled_buffer,8);
-						OLED_ShowString(2,2,(uint8_t *)"cyc:",8);
-						OLED_ShowNum(25,2,Target_Cycles,2,8);
-						OLED_ShowString(60,2,(uint8_t *)"mode:",8);
-						OLED_ShowNum(90,2,carmode,2,8);
-						OLED_ShowString(2,3,(uint8_t *)"Dist:",8);
-						sprintf((char *)oled_buffer, "%4u", DistVal);
-						OLED_ShowString(5*6,3,oled_buffer,8);
-						OLED_ShowString(2,4,(uint8_t *)"ActYaw:",8);
-						sprintf((char *)oled_buffer, "%-6.1f", RelativeYaw);
-						OLED_ShowString(5*9,4,oled_buffer,8);
-						OLED_ShowString(2,5,(uint8_t *)"yaw:",8);
-						sprintf((char *)oled_buffer, "%-6.1f", yaw);
-						OLED_ShowString(5*5,5,oled_buffer,8);
-						OLED_ShowString(2,6,(uint8_t *)"TarYaw:",8);
-						sprintf((char *)oled_buffer, "%-6.1f", Target_Yaw);
-						OLED_ShowString(5*9,6,oled_buffer,8);
+						DistVal = Read_Ultrasonic();
+						OLED_ShowInformation();
 					}
 				}
 			}
